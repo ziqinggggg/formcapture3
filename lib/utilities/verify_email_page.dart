@@ -52,8 +52,9 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                     ),
                   ),
                   onPressed: () async {
-                    final user = FirebaseAuth.instance.currentUser;
-                    await user?.sendEmailVerification();
+                    // final user = FirebaseAuth.instance.currentUser;
+                    // await user?.sendEmailVerification();
+                    await AuthService.firebase().sendEmailVerification();
                   },
                 ),
                 const SizedBox(

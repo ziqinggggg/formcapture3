@@ -38,9 +38,10 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder(
-        future: Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ),
+        future: AuthService.firebase().initialize(),
+        // Firebase.initializeApp(
+        //   options: DefaultFirebaseOptions.currentPlatform,
+        // ),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
@@ -182,19 +183,26 @@ class _SignUpPageState extends State<SignUpPage> {
                                   if (username.isNotEmpty &&
                                       email.isNotEmpty &&
                                       password.isNotEmpty) {
-                                    final userCredential = await FirebaseAuth
-                                        .instance
-                                        .createUserWithEmailAndPassword(
-                                            email: email, password: password);
-                                    await userCredential.user
-                                        ?.updateDisplayName(username);
-                                    await userCredential.user?.reload();
+                                    final userCredential =
+                                        await AuthService.firebase().createUser(
+                                            email: email,
+                                            password: password,
+                                            username: username);
+
+                                    // await FirebaseAuth
+                                    //     .instance
+                                    //     .createUserWithEmailAndPassword(
+                                    //         email: email, password: password);
+                                    // await userCredential.user
+                                    //     ?.updateDisplayName(username);
+                                    // await userCredential.user?.reload();
                                     devtools.log(userCredential.toString());
 
-                                    final user =
-                                        FirebaseAuth.instance.currentUser;
-
-                                    await user?.sendEmailVerification();
+                                    // final user =
+                                    //     FirebaseAuth.instance.currentUser;
+                                    // await user?.sendEmailVerification();
+                                    await AuthService.firebase()
+                                        .sendEmailVerification();
                                     showModalBottomSheet<void>(
                                       context: context,
                                       builder: (BuildContext context) {
@@ -208,24 +216,40 @@ class _SignUpPageState extends State<SignUpPage> {
                                     await showErrorDialog(context,
                                         'Please fill in all the required fields.');
                                   }
-                                } on FirebaseAuthException catch (e) {
-                                  String errorMessage = 'An error occurred.';
-
-                                  if (e.code == 'weak-password') {
-                                    errorMessage =
-                                        'Weak password. Password should be at least 6 characters.';
-                                  } else if (e.code == 'email-already-in-use') {
-                                    errorMessage = 'Email already in use.';
-                                  } else if (e.code == 'invalid-email') {
-                                    errorMessage = 'Invalid email entered.';
-                                  } else {
-                                    errorMessage = 'Error: ${e.code}';
-                                  }
-                                  // Display error dialog
-                                  await showErrorDialog(context, errorMessage);
-                                } catch (e) {
-                                  await showErrorDialog(context, e.toString());
+                                } on WeakPasswordAuthException {
+                                  await showErrorDialog(
+                                      context, 'Weak password. Password should be at least 6 characters.');
+                                } on EmailAlreadyInUseAuthException {
+                                  await showErrorDialog(
+                                      context, 'Email already in use.');
+                                } on InvalidEmailAuthException {
+                                  await showErrorDialog(
+                                      context, 'Invalid email entered.');
                                 }
+                                on GenericAuthException {
+                                  await showErrorDialog(
+                                      context, 'Sign up error');
+                                }
+                                
+
+                                // on FirebaseAuthException catch (e) {
+                                //   String errorMessage = 'An error occurred.';
+
+                                //   if (e.code == 'weak-password') {
+                                //     errorMessage =
+                                //         'Weak password. Password should be at least 6 characters.';
+                                //   } else if (e.code == 'email-already-in-use') {
+                                //     errorMessage = 'Email already in use.';
+                                //   } else if (e.code == 'invalid-email') {
+                                //     errorMessage = 'Invalid email entered.';
+                                //   } else {
+                                //     errorMessage = 'Error: ${e.code}';
+                                //   }
+                                //   // Display error dialog
+                                //   await showErrorDialog(context, errorMessage);
+                                // } catch (e) {
+                                //   await showErrorDialog(context, e.toString());
+                                // }
                               },
                               child: const Text(
                                 'Sign Up',

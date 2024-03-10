@@ -35,9 +35,10 @@ class _LogInPageState extends State<LogInPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder(
-        future: Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ),
+        future: AuthService.firebase().initialize(),
+        // Firebase.initializeApp(
+        //   options: DefaultFirebaseOptions.currentPlatform,
+        // ),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
@@ -146,53 +147,71 @@ class _LogInPageState extends State<LogInPage> {
                                 final email = _email.text;
                                 final password = _password.text;
                                 try {
-                                  final userCredential = await FirebaseAuth
-                                      .instance
-                                      .signInWithEmailAndPassword(
+                                  final userCredential =
+                                      await AuthService.firebase().logIn(
                                           email: email, password: password);
+                                  // await FirebaseAuth
+                                  //     .instance
+                                  //     .signInWithEmailAndPassword(
+                                  //         email: email, password: password);
                                   devtools.log(userCredential.toString());
-                                  final User? user = userCredential.user;
-                                  if (user != null) {
-                                    if (!user.emailVerified) {
-                                      await user.sendEmailVerification();
-                                      showModalBottomSheet<void>(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return const VerifyEmailPage(
-                                              message:
-                                                  "Your email is not verified. We've sent you an email verification. Please check to verify your account.");
-                                        },
-                                      );
-                                    } else {
-                                      // Navigator.push(
-                                      //   context,
-                                      //   MaterialPageRoute(
-                                      //       builder: (context) =>
-                                      //           const NotesPage()),
-                                      // );
-                                      Navigator.of(context)
-                                          .pushNamedAndRemoveUntil(
-                                        '/notes/',
-                                        (route) => false,
-                                      );
-                                    }
-                                  }
-                                } on FirebaseAuthException catch (e) {
-                                  String errorMessage = 'An error occurred.';
 
-                                  if (e.code == 'user-not-found') {
-                                    errorMessage = 'User not found.';
-                                  } else if (e.code == 'wrong-password') {
-                                    errorMessage = 'Wrong password';
-                                  } else if (e.code == 'invalid-credential') {
-                                    errorMessage = 'Invalid credentials';
+                                  // final User? user = userCredential.user;
+                                  final user =
+                                      AuthService.firebase().currentUser;
+                                  // if (user != null) {
+                                  if (user?.isEmailVerified ?? false) {
+                                    // Navigator.push(
+                                    //   context,
+                                    //   MaterialPageRoute(
+                                    //       builder: (context) =>
+                                    //           const NotesPage()),
+                                    // );
+                                    Navigator.of(context)
+                                        .pushNamedAndRemoveUntil(
+                                      '/notes/',
+                                      (route) => false,
+                                    );
                                   } else {
-                                    errorMessage = 'Error: ${e.code}';
+                                    // await user.sendEmailVerification();
+                                    await AuthService.firebase()
+                                        .sendEmailVerification();
+                                    showModalBottomSheet<void>(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return const VerifyEmailPage(
+                                            message:
+                                                "Your email is not verified. We've sent you an email verification. Please check to verify your account.");
+                                      },
+                                    );
                                   }
-                                  await showErrorDialog(context, errorMessage);
-                                } catch (e) {
-                                  await showErrorDialog(context, e.toString());
+                                  // }
+                                } on UserNotFoundAuthException {
+                                  await showErrorDialog(
+                                      context, 'User not found.');
+                                } on WrongPasswordAuthException {
+                                  await showErrorDialog(
+                                      context, 'Wrong password');
+                                } on GenericAuthException {
+                                  await showErrorDialog(
+                                      context, 'Authentication error');
                                 }
+                                // on FirebaseAuthException catch (e) {
+                                //   String errorMessage = 'An error occurred.';
+
+                                //   if (e.code == 'user-not-found') {
+                                //     errorMessage = 'User not found.';
+                                //   } else if (e.code == 'wrong-password') {
+                                //     errorMessage = 'Wrong password';
+                                //   } else if (e.code == 'invalid-credential') {
+                                //     errorMessage = 'Invalid credentials';
+                                //   } else {
+                                //     errorMessage = 'Error: ${e.code}';
+                                //   }
+                                //   await showErrorDialog(context, errorMessage);
+                                // } catch (e) {
+                                //   await showErrorDialog(context, e.toString());
+                                // }
                               },
                               child: const Text(
                                 'Login',

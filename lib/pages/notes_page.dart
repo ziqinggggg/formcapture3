@@ -35,7 +35,8 @@ class _NotesPageState extends State<NotesPage> {
                   bool shouldSignOut = await showConfirmationDialog(
                       context, 'Are you sure you want to sign out?');
                   if (shouldSignOut) {
-                    await FirebaseAuth.instance.signOut();
+                    // await FirebaseAuth.instance.signOut();
+                    await AuthService.firebase().signOut();
                     Navigator.push(
                       context,
                       MaterialPageRoute(

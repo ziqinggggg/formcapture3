@@ -13,7 +13,6 @@ class AuthService implements AuthProvider {
     required String email,
     required String password,
     required String username,
-
   }) =>
       provider.createUser(
         email: email,
@@ -35,7 +34,7 @@ class AuthService implements AuthProvider {
       );
 
   @override
-  Future<void> logOut() => provider.logOut();
+  Future<void> signOut() => provider.signOut();
 
   @override
   Future<void> sendEmailVerification() => provider.sendEmailVerification();

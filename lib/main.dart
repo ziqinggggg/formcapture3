@@ -55,13 +55,16 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: Firebase.initializeApp(
-            options: DefaultFirebaseOptions.currentPlatform),
+        future: AuthService.firebase().initialize(),
+        // Firebase.initializeApp(
+        //     options: DefaultFirebaseOptions.currentPlatform),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              final user = FirebaseAuth.instance.currentUser;
-              if (user != null && user.emailVerified) {
+              final user = AuthService.firebase().currentUser;
+
+              // final user = FirebaseAuth.instance.currentUser;
+              if (user != null && user.isEmailVerified) {
                 return const NotesPage();
               } else {
                 return const LogInPage();
