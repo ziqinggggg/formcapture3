@@ -216,21 +216,19 @@ class _SignUpPageState extends State<SignUpPage> {
                                     await showErrorDialog(context,
                                         'Please fill in all the required fields.');
                                   }
-                                } on WeakPasswordAuthException {
-                                  await showErrorDialog(
-                                      context, 'Weak password. Password should be at least 6 characters.');
                                 } on EmailAlreadyInUseAuthException {
                                   await showErrorDialog(
                                       context, 'Email already in use.');
+                                } on WeakPasswordAuthException {
+                                  await showErrorDialog(context,
+                                      'Weak password. Password should be at least 6 characters.');
                                 } on InvalidEmailAuthException {
                                   await showErrorDialog(
                                       context, 'Invalid email entered.');
-                                }
-                                on GenericAuthException {
+                                } on GenericAuthException {
                                   await showErrorDialog(
-                                      context, 'Sign up error');
+                                      context, 'Fail to register');
                                 }
-                                
 
                                 // on FirebaseAuthException catch (e) {
                                 //   String errorMessage = 'An error occurred.';

@@ -15,10 +15,12 @@ export 'package:formcapture/utilities/generic_dialog.dart';
 // firebase specific
 // export 'package:firebase_core/firebase_core.dart';
 // export 'package:firebase_auth/firebase_auth.dart';
-export 'firebase_options.dart';
+// export 'firebase_options.dart';
 export 'package:formcapture/services/auth/auth_user.dart';
 export 'package:formcapture/services/auth/auth_exception.dart';
 export 'package:formcapture/services/auth/auth_service.dart';
+export 'package:formcapture/services/auth/auth_provider.dart';
+export 'package:formcapture/services/auth/firebase_auth_provider.dart';
 
 export 'package:flutter/material.dart';
 // export 'package:flutter/src/widgets/basic.dart';
