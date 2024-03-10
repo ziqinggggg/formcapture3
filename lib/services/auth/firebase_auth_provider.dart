@@ -23,10 +23,13 @@ class FirebaseAuthProvider implements AuthProvider {
     required String username,
   }) async {
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final authResult =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      await authResult.user?.updateDisplayName(username);
+      await authResult.user?.reload();
       final user = currentUser;
       if (user != null) {
         return user;
