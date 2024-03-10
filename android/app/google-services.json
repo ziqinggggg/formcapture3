@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "357340853860",
+    "project_id": "formcapture",
+    "storage_bucket": "formcapture.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:357340853860:android:b4cf4e340fb7613e45d171",
+        "android_client_info": {
+          "package_name": "com.fyp.formcapture"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "357340853860-sulh0i3cp52mqi0osupbfgtposfr5uoe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOzJVuLBHdEAW4XckzbBxcM5_3l18vYnQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "357340853860-sulh0i3cp52mqi0osupbfgtposfr5uoe.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "357340853860-348m3b8ne155656amn1j6ochbijb6usl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.fyp.formcapture.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
