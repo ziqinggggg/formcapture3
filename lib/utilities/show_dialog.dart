@@ -1,4 +1,4 @@
-import 'package:formcapture/pages.dart';
+import 'package:formcapture/imports.dart';
 
 // class ErrorDialog {
 //   static void showErrorDialog(BuildContext context, String errorMessage) {

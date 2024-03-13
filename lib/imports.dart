@@ -1,11 +1,17 @@
-// pages
+// imports.dart
 export 'package:formcapture/pages/create_note_page.dart';
 export 'package:formcapture/pages/note_detail_page.dart';
 export 'package:formcapture/pages/notes_page.dart';
-export 'package:formcapture/note_sample.dart';
+// export 'package:formcapture/note_sample.dart';
 
 export 'package:formcapture/pages/login_page.dart';
 export 'package:formcapture/pages/signup_page.dart';
+export 'package:formcapture/scan1.dart';
+export 'package:formcapture/scan2.dart';
+export 'package:formcapture/result_screen.dart';
+
+export 'package:formcapture/services/crud/notes_service.dart';
+
 
 //widgets
 export 'package:formcapture/utilities/verify_email_page.dart';

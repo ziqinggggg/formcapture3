@@ -1,4 +1,4 @@
-import 'package:formcapture/pages.dart';
+import 'package:formcapture/imports.dart';
 
 abstract class AuthProvider {
   Future<void> initialize();

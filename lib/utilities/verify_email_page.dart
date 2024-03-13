@@ -2,7 +2,7 @@
 // import 'package:mynotes/services/auth/bloc/auth_bloc.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:mynotes/services/auth/bloc/auth_event.dart';
-import 'package:formcapture/pages.dart';
+import 'package:formcapture/imports.dart';
 
 class VerifyEmailPage extends StatefulWidget {
   final String message;

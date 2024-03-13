@@ -1,15 +1,13 @@
-// // note_detail_page.dart
-
-// import 'package:formcapture/imports.dart';
+// import 'package:formcapture/pages.dart';
 
 // class NoteDetail extends StatefulWidget {
-//   final String note;
-//   // final int indyex;
+//   final Note note;
+//   final int index;
 
 //   const NoteDetail({
 //     Key? key,
 //     required this.note,
-//     // required this.index,
+//     required this.index,
 //   }) : super(key: key);
 
 //   @override
@@ -48,15 +46,15 @@
 //           padding: const EdgeInsets.symmetric(horizontal: 15),
 //           child: Column(children: [
 //             // const FormattingToolBar(),
-//             const TextField(
-//               // controller: TextEditingController(text: 'title'),
+//             TextField(
+//               controller: TextEditingController(text: widget.note.title),
 //               cursorColor: Colors.black,
 //               maxLines: null,
-//               style: TextStyle(
+//               style: const TextStyle(
 //                   color: Colors.black,
 //                   fontSize: 30,
 //                   fontWeight: FontWeight.bold),
-//               decoration: InputDecoration(
+//               decoration: const InputDecoration(
 //                 contentPadding: EdgeInsets.all(0),
 //                 hintText: 'Title',
 //                 hintStyle: TextStyle(
@@ -67,7 +65,7 @@
 //               ),
 //             ),
 //             TextField(
-//               controller: TextEditingController(text: widget.note),
+//               controller: TextEditingController(text: widget.note.body),
 //               cursorColor: Colors.black,
 //               maxLines: null,
 //               style: const TextStyle(

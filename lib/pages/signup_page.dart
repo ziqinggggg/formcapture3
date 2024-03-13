@@ -1,4 +1,4 @@
-import 'package:formcapture/pages.dart';
+import 'package:formcapture/imports.dart';
 import 'dart:developer' as devtools show log;
 
 class SignUpPage extends StatefulWidget {

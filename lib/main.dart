@@ -1,4 +1,6 @@
-import 'package:formcapture/pages.dart';
+// main.dart
+
+import 'package:formcapture/imports.dart';
 
 // void main() async {
 //   WidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +45,6 @@ void main() {
       home: const HomePage(),
       routes: {
         notesRoute: (context) => const NotesPage(),
-        // verifyEmailRoute: (context) => const VerifyEmailPage(),
       },
     ),
   );

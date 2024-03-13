@@ -1,7 +1,7 @@
 // import 'package:formcapture/services/auth/auth_provider.dart';
 // import 'package:formcapture/services/auth/auth_user.dart';
 // import 'package:formcapture/services/auth/firebase_auth_provider.dart';
-import 'package:formcapture/pages.dart';
+import 'package:formcapture/imports.dart';
 
 
 class AuthService implements AuthProvider {
