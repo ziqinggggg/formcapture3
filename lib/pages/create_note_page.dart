@@ -1,6 +1,7 @@
 // create_note_page.dart
 
 import 'package:formcapture/imports.dart';
+import 'dart:developer' as devtools show log;
 
 class CreateNote extends StatefulWidget {
   const CreateNote({
@@ -25,7 +26,6 @@ class _CreateNoteState extends State<CreateNote> {
   // late final FirebaseCloudStorage _notesService;
   // late final TextEditingController _titleController;
   // late final TextEditingController _textController;
-
   @override
   void initState() {
     // _notesService = FirebaseCloudStorage();
@@ -153,14 +153,48 @@ class _CreateNoteState extends State<CreateNote> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.delete,
-              size: 30,
-            ),
-            onPressed: () {
-              // Navigator.pop(context);
+          PopupMenuButton<String>(
+            offset: const Offset(0, 50),
+            onSelected: (value) async {
+              if (value == 'delete') {
+                bool shoulddelete = await showDeleteConfirmationDialog(
+                    context, 'Are you sure you want to delete note?');
+                if (shoulddelete) {
+                  // await Navigator.of(context).pushNamedAndRemoveUntil(
+                  //   '/notes/',
+                  //   (route) => false,
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const NotesPage()),
+                  );
+                  final note = _note;
+                  await _notesService.deleteNote(id: note!.id);
+                } else {}
+              } else if (value == 'share') {}
             },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: 'delete',
+                child: SizedBox(
+                  child: ListTile(
+                    leading: Icon(Icons.delete,
+                        color: Color.fromARGB(255, 207, 88, 78)),
+                    title: Text(
+                      'Delete',
+                      style: TextStyle(color: Color.fromARGB(255, 207, 88, 78)),
+                    ),
+                  ),
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'share',
+                child: ListTile(
+                  leading: Icon(Icons.share),
+                  title: Text('Share'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -197,9 +231,8 @@ class _CreateNoteState extends State<CreateNote> {
                           ),
                         ),
                         TextField(
-                          //note text field
                           controller: _textController,
-                          // cursorColor: Colors.black,
+                          cursorColor: Colors.black,
                           keyboardType: TextInputType.multiline,
                           maxLines: null,
                           style: const TextStyle(

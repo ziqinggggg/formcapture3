@@ -178,15 +178,15 @@
 //                           Expanded(
 //                             child: ListView.builder(
 //                                 // itemCount: notes.length,
-//                                 itemCount: allNotes.length,
-//                                 itemBuilder: (context, index) {
-//                                   int reversedIndex = notes.length - 1 - index;
-//                                   final note = notes[reversedIndex];
-//                                   return NotePreview(
-//                                     note: note,
-//                                     index: index,
-//                                   );
-//                                 }),
+                                // itemCount: allNotes.length,
+                                // itemBuilder: (context, index) {
+                                //   int reversedIndex = notes.length - 1 - index;
+                                //   final note = notes[reversedIndex];
+                                //   return NotePreview(
+                                //     note: note,
+                                //     index: index,
+                                //   );
+                                // }),
 //                           )
 //                         ],
 //                       ),

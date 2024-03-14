@@ -22,10 +22,11 @@ import 'package:formcapture/imports.dart';
 //   }
 // }
 
-Future<bool> showConfirmationDialog(BuildContext context, String message) {
+Future<bool> showSignOutConfirmationDialog(
+    BuildContext context, String message) {
   return showGenericDialog<bool>(
     context: context,
-    title: 'Confirmation',
+    title: 'Sign Out Confirmation',
     content: message,
     optionsBuilder: () => {'Cancel': false, 'Sign Out': true},
   ).then(
@@ -44,5 +45,17 @@ Future<void> showErrorDialog(
     optionsBuilder: () => {
       'OK': null,
     },
+  );
+}
+
+Future<bool> showDeleteConfirmationDialog(
+    BuildContext context, String message) {
+  return showGenericDialog<bool>(
+    context: context,
+    title: 'Delete Confirmation',
+    content: message,
+    optionsBuilder: () => {'Cancel': false, 'Delete': true},
+  ).then(
+    (value) => value ?? false,
   );
 }
