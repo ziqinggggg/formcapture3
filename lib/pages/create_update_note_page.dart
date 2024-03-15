@@ -3,33 +3,28 @@
 import 'package:formcapture/imports.dart';
 import 'dart:developer' as devtools show log;
 
-class CreateNote extends StatefulWidget {
-  const CreateNote({
+class CreateUpdateNote extends StatefulWidget {
+  const CreateUpdateNote({
     Key? key,
   }) : super(key: key);
 
   @override
-  State<CreateNote> createState() => _CreateNoteState();
+  State<CreateUpdateNote> createState() => _CreateUpdateNoteState();
 }
 
-class _CreateNoteState extends State<CreateNote> {
-  DatabaseNote? _note;
-  late final NotesService _notesService;
+class _CreateUpdateNoteState extends State<CreateUpdateNote> {
+  // DatabaseNote? _note;
+  // late final NotesService _notesService;
+  CloudNote? _note;
+  late final FirebaseCloudStorage _notesService;
 
   late final TextEditingController _titleController;
   late final TextEditingController _textController;
 
-  // final _titleController = TextEditingController();
-  // final _noteController = TextEditingController();
-
-  // CloudNote? _note;
-  // late final FirebaseCloudStorage _notesService;
-  // late final TextEditingController _titleController;
-  // late final TextEditingController _textController;
   @override
   void initState() {
-    // _notesService = FirebaseCloudStorage();
-    _notesService = NotesService();
+    // _notesService = NotesService();
+    _notesService = FirebaseCloudStorage();
     _titleController = TextEditingController();
     _textController = TextEditingController();
     super.initState();
@@ -40,12 +35,10 @@ class _CreateNoteState extends State<CreateNote> {
     if (note == null) {
       return;
     }
-
     final title = _titleController.text;
     final text = _textController.text;
     await _notesService.updateNote(
-      // documentId: note.documentId,
-      note: note,
+      documentId: note.documentId,
       title: title,
       text: text,
     );
@@ -56,12 +49,10 @@ class _CreateNoteState extends State<CreateNote> {
     if (note == null) {
       return;
     }
-
     final title = _titleController.text;
     final text = _textController.text;
     await _notesService.updateNote(
-      // documentId: note.documentId,
-      note: note,
+      documentId: note.documentId,
       title: title,
       text: text,
     );
@@ -94,15 +85,26 @@ class _CreateNoteState extends State<CreateNote> {
   //   return newNote;
   // }
 
-  Future<DatabaseNote> createNewNote(BuildContext context) async {
+  Future<CloudNote> createOrGetExistingNote(BuildContext context) async {
+    final widgetNote = context.getArgument<CloudNote>();
+
+    if (widgetNote != null) {
+      _note = widgetNote;
+      _titleController.text = widgetNote.title;
+      _textController.text = widgetNote.text;
+      return widgetNote;
+    }
+
     final existingNote = _note;
     if (existingNote != null) {
       return existingNote;
     }
+
     final currentUser = AuthService.firebase().currentUser!;
-    final email = currentUser.email;
-    final owner = await _notesService.getUser(email: email);
-    return await _notesService.createNote(owner: owner);
+    final userId = currentUser.email;
+    final newNote = await _notesService.createNewNote(ownerUserId: userId);
+    _note = newNote;
+    return newNote;
   }
 
   void _deleteNoteIfTextIsEmpty() {
@@ -110,8 +112,8 @@ class _CreateNoteState extends State<CreateNote> {
     if (_textController.text.isEmpty &&
         _titleController.text.isEmpty &&
         note != null) {
-      // _notesService.deleteNote(documentId: note.documentId);
-      _notesService.deleteNote(id: note.id);
+      _notesService.deleteNote(documentId: note.documentId);
+      // _notesService.deleteNote(id: note.id);
     }
   }
 
@@ -120,18 +122,16 @@ class _CreateNoteState extends State<CreateNote> {
     final title = _titleController.text;
     final text = _textController.text;
 
-    if (note != null && text.isNotEmpty) {
+    if (note != null && (title.isNotEmpty | text.isNotEmpty)) {
       if (title.isNotEmpty) {
         await _notesService.updateNote(
-          // documentId: note.documentId,
-          note: note,
+          documentId: note.documentId,
           title: title,
           text: text,
         );
       } else if (title.isEmpty) {
         await _notesService.updateNote(
-          // documentId: note.documentId,
-          note: note,
+          documentId: note.documentId,
           title: 'Untitled',
           text: text,
         );
@@ -160,16 +160,16 @@ class _CreateNoteState extends State<CreateNote> {
                 bool shoulddelete = await showDeleteConfirmationDialog(
                     context, 'Are you sure you want to delete note?');
                 if (shoulddelete) {
-                  // await Navigator.of(context).pushNamedAndRemoveUntil(
-                  //   '/notes/',
-                  //   (route) => false,
+                  // // await Navigator.of(context).pushNamedAndRemoveUntil(
+                  // //   '/notes/',
+                  // //   (route) => false,
+                  // final note = _note;
+                  // await _notesService.deleteNote(id: note!.id);
 
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const NotesPage()),
-                  );
-                  final note = _note;
-                  await _notesService.deleteNote(id: note!.id);
+                  // await Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => const NotesPage()),
+                  // );
                 } else {}
               } else if (value == 'share') {}
             },
@@ -199,11 +199,10 @@ class _CreateNoteState extends State<CreateNote> {
         ],
       ),
       body: FutureBuilder(
-        future: createNewNote(context),
+        future: createOrGetExistingNote(context),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              _note = snapshot.data as DatabaseNote;
               _setupTextControllerListener;
               return SafeArea(
                 bottom: false,

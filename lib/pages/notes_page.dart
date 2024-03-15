@@ -1,5 +1,6 @@
 // notes_page.dart
 
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:formcapture/imports.dart';
 import 'dart:developer' as devtools show log;
 
@@ -13,17 +14,16 @@ class NotesPage extends StatefulWidget {
 }
 
 class _NotesPageState extends State<NotesPage> {
-  // late final FirebaseCloudStorage _notesService;
-  late final NotesService _notesService;
+  late final FirebaseCloudStorage _notesService;
+  // late final NotesService _notesService;
 
   String get userId => AuthService.firebase().currentUser!.id;
-  String get userEmail => AuthService.firebase().currentUser!.email;
+  // String get userEmail => AuthService.firebase().currentUser!.email;
 
   @override
   void initState() {
-    // _notesService = FirebaseCloudStorage();
-    _notesService = NotesService();
-    _notesService.open();
+    _notesService = FirebaseCloudStorage();
+    // _notesService = NotesService();
     super.initState();
   }
 
@@ -136,123 +136,106 @@ class _NotesPageState extends State<NotesPage> {
           ),
         ),
       ),
-      body: FutureBuilder(
-        future: _notesService.getOrCreateUser(email: userEmail),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              return StreamBuilder(
-                  stream: _notesService.allNotes,
-                  builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.waiting:
-                      case ConnectionState.active:
-                        if (snapshot.hasData) {
-                          // final allNotes = snapshot.data as Iterable<CloudNote>;
-                          final allNotes = snapshot.data as List<DatabaseNote>;
-                          if (sortByCreatedDate) {
-                            allNotes.sort((a, b) =>
-                                b.createdDate.compareTo(a.createdDate));
-                          } else {
-                            allNotes.sort((a, b) =>
-                                b.createdDate.compareTo(a.modifiedDate));
-                          }
-                          if (allNotes.isNotEmpty) {
-                            return SafeArea(
-                              bottom: false,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 15),
-                                child: Column(
-                                  children: [
-                                    // ListTile(
-                                    //   title: const Text(
-                                    //     'My notes',
-                                    //     style: TextStyle(
-                                    //         color: Colors.black,
-                                    //         fontSize: 35,
-                                    //         fontWeight: FontWeight.bold),
-                                    //   ),
-                                    //   trailing: IconButton(
-                                    //     icon: const Icon(Icons.more_horiz),
-                                    //     onPressed: () {
-                                    //       // showModalBottomSheet<void>(
-                                    //       //   context: context,
-                                    //       //   builder: (BuildContext context) {
-                                    //       //     return const MainMBS();
-                                    //       //   },
-                                    //       // );
-                                    //     },
-                                    //   ),
-                                    // ),
+      body: StreamBuilder(
+          stream: _notesService.allNotes(ownerUserId: userId),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+              case ConnectionState.active:
+                if (snapshot.hasData) {
+                  final allNotes = snapshot.data as Iterable<CloudNote>;
+                  // if (sortByCreatedDate) {
+                  //   allNotes
+                  //       .sort((a, b) => b.createdDate.compareTo(a.createdDate));
+                  // } else {
+                  //   allNotes.sort(
+                  //       (a, b) => b.createdDate.compareTo(a.modifiedDate));
+                  // }
+                  if (allNotes.isNotEmpty) {
+                    return SafeArea(
+                      bottom: false,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: Column(
+                          children: [
+                            // ListTile(
+                            //   title: const Text(
+                            //     'My notes',
+                            //     style: TextStyle(
+                            //         color: Colors.black,
+                            //         fontSize: 35,
+                            //         fontWeight: FontWeight.bold),
+                            //   ),
+                            //   trailing: IconButton(
+                            //     icon: const Icon(Icons.more_horiz),
+                            //     onPressed: () {
+                            //       // showModalBottomSheet<void>(
+                            //       //   context: context,
+                            //       //   builder: (BuildContext context) {
+                            //       //     return const MainMBS();
+                            //       //   },
+                            //       // );
+                            //     },
+                            //   ),
+                            // ),
 
-                                    const SizedBox(
-                                      height: 15,
-                                    ),
-                                    Expanded(
-                                      child: ListView.builder(
-                                        itemCount: allNotes.length,
-                                        itemBuilder: (context, index) {
-                                          final note = allNotes[index];
-                                          return NotePreview(
-                                            title: note.title,
-                                            text: note.text,
-                                            createdDate: note.createdDate,
-                                            modifiedDate: note.modifiedDate,
-                                          );
-                                        },
-                                      ),
-                                    )
-                                  ],
-                                ),
+                            const SizedBox(
+                              height: 15,
+                            ),
+                            NotePreview(
+                              notes: allNotes,
+                              onTap: (note) {
+                                Navigator.of(context).pushNamed(
+                                  '/createnote/',
+                                  arguments: note,
+                                );
+                              },
+                              onDelete: (note) async {
+                                await _notesService.deleteNote(
+                                    documentId: note.documentId);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  } else {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                        child: Column(
+                          // mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              height: 290,
+                            ),
+                            const Text(
+                              "Your notes collection is empty. Start by tapping the '+' button to create one.",
+                              style:
+                                  TextStyle(fontSize: 23, color: Colors.grey),
+                              textAlign: TextAlign.center,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 00),
+                              child: Image.asset(
+                                'assets/images/arrow2.png',
+                                height: 280,
                               ),
-                            );
-                          } else {
-                            return Center(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 15.0),
-                                child: Column(
-                                  // mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(
-                                      height: 290,
-                                    ),
-                                    const Text(
-                                      "Your notes collection is empty. Start by tapping the '+' button to create one.",
-                                      style: TextStyle(
-                                          fontSize: 23, color: Colors.grey),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 00),
-                                      child: Image.asset(
-                                        'assets/images/arrow2.png',
-                                        height: 280,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            );
-                          }
-                        } else {
-                          return const CircularProgressIndicator();
-                        }
-                      case ConnectionState.none:
-                        return const Text('ConnectionState.none');
-                      case ConnectionState.done:
-                        return const Text('ConnectionState.done');
-                      default:
-                        return const CircularProgressIndicator();
-                    }
-                  });
+                            )
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+                } else {
+                  return const CircularProgressIndicator();
+                }
 
-            default:
-              return const CircularProgressIndicator();
-          }
-        },
-      ),
+              default:
+                devtools.log("default2");
+                return const CircularProgressIndicator();
+            }
+          }),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.white,
         onPressed: () {
@@ -272,32 +255,30 @@ class _NotesPageState extends State<NotesPage> {
   }
 }
 
-class NotePreview extends StatefulWidget {
-  final String title;
-  final String text;
-  final DateTime createdDate;
-  final DateTime modifiedDate;
+typedef NoteCallBack = void Function(CloudNote note);
+
+class NotePreview extends StatelessWidget {
+  final Iterable<CloudNote> notes;
+  final NoteCallBack onTap;
+  final NoteCallBack onDelete;
 
   const NotePreview({
     super.key,
-    required this.title,
-    required this.text,
-    required this.createdDate,
-    required this.modifiedDate,
+    required this.notes,
+    required this.onTap,
+    required this.onDelete,
   });
 
-  @override
-  State<NotePreview> createState() => _NotePreviewState();
-}
-
-class _NotePreviewState extends State<NotePreview> {
   String getRelativeTime(DateTime date) {
-    // final currentDate = DateTime.now();
     final currentDate = DateTime.now();
-    final gmtOffset = Duration(hours: 8); // GMT+08:00
+    const gmtOffset = Duration(hours: 8); // GMT+08:00
     final gmtTime = currentDate.add(gmtOffset);
 
-    final difference = gmtTime.difference(date).inDays;
+    final dateMidnight = DateTime(date.year, date.month, date.day, 0, 0, 0);
+    final gmtTimeMidnight =
+        DateTime(gmtTime.year, gmtTime.month, gmtTime.day, 0, 0, 0);
+
+    final difference = gmtTimeMidnight.difference(dateMidnight).inDays;
 
     if (difference == 0) {
       return 'Today';
@@ -312,66 +293,110 @@ class _NotePreviewState extends State<NotePreview> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        InkWell(
-          onTap: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //       builder: (context) => NoteDetail(
-            //             note: widget.note,
-            //             // index: widget.index,
-            //           )),
-            // );
-          },
-          child: Card(
-            color: Colors.white,
+    return Expanded(
+      child: ListView.builder(
+        itemCount: notes.length,
+        itemBuilder: (context, index) {
+          final note = notes.elementAt(index);
+          return Card(
             elevation: 3,
             // margin: const EdgeInsets.only(bottom: 20),
             margin: const EdgeInsets.symmetric(vertical: 10),
+            // child: InkWell(
+            //   borderRadius: BorderRadius.circular(210),
+            //   splashColor: Colors.blue,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      maxLines: 1,
-                      widget.title,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+              // const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+              child: Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: const BoxDecoration(),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Slidable(
+                    key: const ValueKey(0),
+                    endActionPane: ActionPane(
+                      motion: const DrawerMotion(),
+                      // dismissible: DismissiblePane(onDismissed: () async {
+                      //   try {
+                      //     await _notesService.deleteNote(id: widget.noteId);
+                      //   } catch (e) {
+                      //     devtools.log("$e");
+                      //   }
+                      // }),
+                      children: [
+                        SlidableAction(
+                          onPressed: (BuildContext context) async {},
+                          backgroundColor: const Color(0xFF21B7CA),
+                          foregroundColor: Colors.white,
+                          icon: Icons.share,
+                          label: 'Share',
+                        ),
+                        SlidableAction(
+                          onPressed: (BuildContext context) async {
+                            try {
+                              bool shoulddelete =
+                                  await showDeleteConfirmationDialog(context,
+                                      'Are you sure you want to delete note?');
+                              if (shoulddelete) {
+                                onDelete(note);
+                              } else {}
+                            } catch (e) {
+                              devtools.log("$e");
+                            }
+                          },
+                          backgroundColor: const Color(0xFFFE4A49),
+                          foregroundColor: Colors.white,
+                          icon: Icons.delete,
+                          label: 'Delete',
+                        ),
+                      ],
                     ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: SizedBox(
-                      child: RichText(
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        text: TextSpan(
-                          text: DateFormat('yyyy/MM/dd HH:mm')
-                                  .format(widget.createdDate)
-                                  .toString() +
-                              '  ' +
-                              getRelativeTime(widget.createdDate) +
-                              '  ' +
-                              widget.text,
-                          style: const TextStyle(
-                            color: Color.fromARGB(255, 95, 95, 95),
-                            fontFamily: 'inter',
-                            fontSize: 16,
+                    child: Stack(
+                      children: [
+                        ListTile(
+                          title: Text(
+                            note.title,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 20),
+                          ),
+                          subtitle: Text(
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            // DateFormat('yyyy/MM/dd HH:mm')
+                            //         .format(widget.createdDate)
+                            //         .toString() +
+                            //     '  ' +
+                            getRelativeTime(note.createdDate) +
+                                '  ' +
+                                note.text,
+                            style: const TextStyle(
+                              color: Color.fromARGB(255, 95, 95, 95),
+                              fontFamily: 'inter',
+                              fontSize: 16,
+                            ),
                           ),
                         ),
-                      ),
+                        Positioned.fill(
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              splashColor: Color.fromARGB(71, 169, 169, 169),
+                              onTap: () {
+                                onTap(note);
+                              },
+                            ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+          );
+        },
+      ),
     );
   }
 }

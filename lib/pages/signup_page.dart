@@ -196,8 +196,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                     // await userCredential.user
                                     //     ?.updateDisplayName(username);
                                     // await userCredential.user?.reload();
-                                    devtools.log('userCredential.toString()');
-                                    devtools.log(userCredential.toString());
+
 
                                     // final user =
                                     //     FirebaseAuth.instance.currentUser;

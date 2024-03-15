@@ -45,7 +45,7 @@ void main() {
       home: const HomePage(),
       routes: {
         notesRoute: (context) => const NotesPage(),
-        '/createnote/':  (context) => const CreateNote(),
+        '/createnote/': (context) => const CreateUpdateNote(),
       },
     ),
   );

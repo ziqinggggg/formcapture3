@@ -149,14 +149,12 @@ class _LogInPageState extends State<LogInPage> {
                                 final email = _email.text;
                                 final password = _password.text;
                                 try {
-                                  final userCredential =
-                                      await AuthService.firebase().logIn(
-                                          email: email, password: password);
+                                  await AuthService.firebase()
+                                      .logIn(email: email, password: password);
                                   // await FirebaseAuth
                                   //     .instance
                                   //     .signInWithEmailAndPassword(
                                   //         email: email, password: password);
-                                  devtools.log(userCredential.toString());
 
                                   // final User? user = userCredential.user;
                                   final user =
