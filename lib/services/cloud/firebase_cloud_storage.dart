@@ -1,4 +1,5 @@
 import 'package:formcapture/imports.dart';
+import 'dart:developer' as devtools show log;
 
 // sigleton
 class FirebaseCloudStorage {
@@ -17,25 +18,35 @@ class FirebaseCloudStorage {
     required String title,
     required String text,
   }) async {
-    final currentTime = DateTime.now();
-    final gmtOffset = Duration(hours: 8); // GMT+08:00
-    final gmtTime = currentTime.add(gmtOffset);
+    // final currentTime = DateTime.now();
+    // final gmtOffset = Duration(hours: 8); // GMT+08:00
+    // final gmtTime = currentTime.add(gmtOffset);
     try {
       await notes.doc(documentId).update({
         titleFieldName: title,
         textFieldName: text,
-        modifiedDateFieldName: gmtTime
+        modifiedDateFieldName: Timestamp.fromDate(DateTime.now())
       });
     } catch (e) {
       throw CouldNotUpdateNoteException();
     }
   }
 
-  Stream<Iterable<CloudNote>> allNotes({required String ownerUserId}) {
+  Stream<Iterable<CloudNote>> allNotes(
+      {required String ownerUserId, required bool sortByCreatedDate}) {
+    var sortingMethod = '';
+    if (sortByCreatedDate) {
+      sortingMethod = 'created_date';
+    } else {
+      sortingMethod = 'modified_date';
+    }
+
     final allNotes = notes
         .where(ownerUserIdFieldName, isEqualTo: ownerUserId)
+        .orderBy(sortingMethod, descending: true)
         .snapshots()
         .map((event) => event.docs.map((doc) => CloudNote.fromSnapshot(doc)));
+
     return allNotes;
   }
 
@@ -56,24 +67,27 @@ class FirebaseCloudStorage {
   }
 
   Future<CloudNote> createNewNote({required String ownerUserId}) async {
-    final currentTime = DateTime.now();
-    final gmtOffset = Duration(hours: 8); // GMT+08:00
-    final gmtTime = currentTime.add(gmtOffset);
+    // final currentTime = DateTime.now();
+    // final gmtOffset = Duration(hours: 8); // GMT+08:00
+    // final gmtTime = currentTime.add(gmtOffset);
 
     try {
       final document = await notes.add({
         ownerUserIdFieldName: ownerUserId,
         titleFieldName: '',
         textFieldName: '',
+        createdDateFieldName: Timestamp.fromDate(DateTime.now()),
+        modifiedDateFieldName: Timestamp.fromDate(DateTime.now()),
       });
       final fetchedNote = await document.get();
+
       return CloudNote(
         documentId: fetchedNote.id,
         ownerUserId: ownerUserId,
         title: '',
         text: '',
-        createdDate: gmtTime,
-        modifiedDate: gmtTime,
+        createdDate: Timestamp.fromDate(DateTime.now()),
+        modifiedDate: Timestamp.fromDate(DateTime.now()),
       );
     } catch (e) {
       throw CouldNotCreateNoteException();

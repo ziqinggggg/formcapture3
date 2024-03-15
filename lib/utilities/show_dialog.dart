@@ -22,11 +22,10 @@ import 'package:formcapture/imports.dart';
 //   }
 // }
 
-Future<bool> showSignOutConfirmationDialog(
-    BuildContext context, String message) {
+Future<bool> showAlertDialog(BuildContext context, String message) {
   return showGenericDialog<bool>(
     context: context,
-    title: 'Sign Out Confirmation',
+    title: 'Alert',
     content: message,
     optionsBuilder: () => {'Cancel': false, 'Sign Out': true},
   ).then(
@@ -57,5 +56,17 @@ Future<bool> showDeleteConfirmationDialog(
     optionsBuilder: () => {'Cancel': false, 'Delete': true},
   ).then(
     (value) => value ?? false,
+  );
+}
+
+Future<void> showCannotShareEmptyNoteDialog(
+    BuildContext context) {
+  return showGenericDialog<bool>(
+    context: context,
+    title: 'Alert',
+    content: 'You cannot share empty notes.',
+    optionsBuilder: () => {
+      'OK': null,
+    },
   );
 }

@@ -6,8 +6,8 @@ class CloudNote {
   final String ownerUserId;
   final String title;
   final String text;
-  final DateTime createdDate;
-  final DateTime modifiedDate;
+  final Timestamp createdDate;
+  final Timestamp modifiedDate;
 
   const CloudNote({
     required this.documentId,
@@ -23,6 +23,6 @@ class CloudNote {
         ownerUserId = snapshot.data()[ownerUserIdFieldName],
         title = snapshot.data()[titleFieldName] as String,
         text = snapshot.data()[textFieldName] as String,
-        createdDate = snapshot.data()[createdDateFieldName] as DateTime,
-        modifiedDate = snapshot.data()[modifiedDateFieldName] as DateTime;
+        createdDate = snapshot.data()[createdDateFieldName] as Timestamp,
+        modifiedDate = snapshot.data()[modifiedDateFieldName] as Timestamp;
 }

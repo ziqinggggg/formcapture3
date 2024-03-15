@@ -65,26 +65,6 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
     _titleController.addListener(_titleControllerListener);
   }
 
-  // Future<CloudNote> createOrGetExistingNote(BuildContext context) async {
-  //   final widgetNote = context.getArgument<CloudNote>();
-
-  //   if (widgetNote != null) {
-  //     _note = widgetNote;
-  //     _textController.text = widgetNote.text;
-  //     return widgetNote;
-  //   }
-
-  //   final existingNote = _note;
-  //   if (existingNote != null) {
-  //     return existingNote;
-  //   }
-  //   final currentUser = AuthService.firebase().currentUser!;
-  //   final userId = currentUser.id;
-  //   final newNote = await _notesService.createNewNote(ownerUserId: userId);
-  //   _note = newNote;
-  //   return newNote;
-  // }
-
   Future<CloudNote> createOrGetExistingNote(BuildContext context) async {
     final widgetNote = context.getArgument<CloudNote>();
 
@@ -101,7 +81,7 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
     }
 
     final currentUser = AuthService.firebase().currentUser!;
-    final userId = currentUser.email;
+    final userId = currentUser.id;
     final newNote = await _notesService.createNewNote(ownerUserId: userId);
     _note = newNote;
     return newNote;
@@ -163,15 +143,23 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
                   // // await Navigator.of(context).pushNamedAndRemoveUntil(
                   // //   '/notes/',
                   // //   (route) => false,
-                  // final note = _note;
-                  // await _notesService.deleteNote(id: note!.id);
+                  final note = _note;
+                  await _notesService.deleteNote(documentId: note!.documentId);
 
-                  // await Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(builder: (context) => const NotesPage()),
-                  // );
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const NotesPage()),
+                  );
                 } else {}
-              } else if (value == 'share') {}
+              } else if (value == 'share') {
+                final title = _titleController.text;
+                final text = _textController.text;
+                if (_note == null || (text.isEmpty && title.isEmpty)) {
+                  await showCannotShareEmptyNoteDialog(context);
+                } else {
+                  Share.share('Title: ' + title + '\n' + text);
+                }
+              }
             },
             itemBuilder: (BuildContext context) => [
               const PopupMenuItem<String>(

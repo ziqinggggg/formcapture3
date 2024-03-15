@@ -42,15 +42,19 @@ class _NotesPageState extends State<NotesPage> {
             offset: const Offset(0, 50),
             onSelected: (value) async {
               if (value == 'sorting') {
-                setState(() {
-                  sortByCreatedDate = !sortByCreatedDate;
-                });
+                // setState(() {
+                //   sortByCreatedDate = !sortByCreatedDate;
+                // });
+                // await Navigator.push(
+                //     context,
+                //     MaterialPageRoute(builder: (context) => const NotesPage()),
+                //   );
               } else if (value == 'settings') {
                 // Handle the Settings option
               } else if (value == 'share') {
                 // Handle the Share option
               } else if (value == 'signOut') {
-                bool shouldSignOut = await showSignOutConfirmationDialog(
+                bool shouldSignOut = await showAlertDialog(
                     context, 'Are you sure you want to sign out?');
                 if (shouldSignOut) {
                   // await FirebaseAuth.instance.signOut();
@@ -137,19 +141,23 @@ class _NotesPageState extends State<NotesPage> {
         ),
       ),
       body: StreamBuilder(
-          stream: _notesService.allNotes(ownerUserId: userId),
+          stream: _notesService.allNotes(
+              ownerUserId: userId, sortByCreatedDate: sortByCreatedDate),
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
               case ConnectionState.active:
                 if (snapshot.hasData) {
                   final allNotes = snapshot.data as Iterable<CloudNote>;
+                  // final allNotesList = allNotes.toList();
                   // if (sortByCreatedDate) {
-                  //   allNotes
-                  //       .sort((a, b) => b.createdDate.compareTo(a.createdDate));
+                  //   allNotesList.sort((a, b) => b.createdDate
+                  //       .toDate()
+                  //       .compareTo(a.createdDate.toDate()));
                   // } else {
-                  //   allNotes.sort(
-                  //       (a, b) => b.createdDate.compareTo(a.modifiedDate));
+                  //   allNotesList.sort((a, b) => b.createdDate
+                  //       .toDate()
+                  //       .compareTo(a.modifiedDate.toDate()));
                   // }
                   if (allNotes.isNotEmpty) {
                     return SafeArea(
@@ -232,7 +240,6 @@ class _NotesPageState extends State<NotesPage> {
                 }
 
               default:
-                devtools.log("default2");
                 return const CircularProgressIndicator();
             }
           }),
@@ -270,24 +277,27 @@ class NotePreview extends StatelessWidget {
   });
 
   String getRelativeTime(DateTime date) {
-    final currentDate = DateTime.now();
     const gmtOffset = Duration(hours: 8); // GMT+08:00
-    final gmtTime = currentDate.add(gmtOffset);
 
-    final dateMidnight = DateTime(date.year, date.month, date.day, 0, 0, 0);
-    final gmtTimeMidnight =
-        DateTime(gmtTime.year, gmtTime.month, gmtTime.day, 0, 0, 0);
+    final currentDate = DateTime.now().add(gmtOffset);
+    final createdDate = date.add(gmtOffset);
 
-    final difference = gmtTimeMidnight.difference(dateMidnight).inDays;
+    final createdDateMidnight =
+        DateTime(createdDate.year, createdDate.month, createdDate.day, 0, 0, 0);
+    final currentDateMidnight =
+        DateTime(currentDate.year, currentDate.month, currentDate.day, 0, 0, 0);
+
+    final difference =
+        currentDateMidnight.difference(createdDateMidnight).inDays;
 
     if (difference == 0) {
-      return 'Today';
+      return DateFormat('HH:mm').format(createdDate);
     } else if (difference == 1) {
       return 'Yesterday';
     } else if (difference < 7) {
-      return DateFormat('EEEE').format(date); // Day of the week
+      return DateFormat('EEEE').format(createdDate); // Day of the week
     } else {
-      return DateFormat('yyyy/MM/dd').format(date); // Default format
+      return DateFormat('yyyy/MM/dd').format(createdDate); // Default format
     }
   }
 
@@ -326,7 +336,10 @@ class NotePreview extends StatelessWidget {
                       // }),
                       children: [
                         SlidableAction(
-                          onPressed: (BuildContext context) async {},
+                          onPressed: (BuildContext context) async {
+                            Share.share(
+                                'Title: ' + note.title + '\n' + note.text);
+                          },
                           backgroundColor: const Color(0xFF21B7CA),
                           foregroundColor: Colors.white,
                           icon: Icons.share,
@@ -364,10 +377,10 @@ class NotePreview extends StatelessWidget {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             // DateFormat('yyyy/MM/dd HH:mm')
-                            //         .format(widget.createdDate)
+                            //         .format(note.createdDate.toDate())
                             //         .toString() +
                             //     '  ' +
-                            getRelativeTime(note.createdDate) +
+                            getRelativeTime(note.createdDate.toDate()) +
                                 '  ' +
                                 note.text,
                             style: const TextStyle(

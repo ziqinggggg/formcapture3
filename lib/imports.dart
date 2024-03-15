@@ -4,7 +4,6 @@
 export 'package:formcapture/pages/create_update_note_page.dart';
 export 'package:formcapture/pages/note_detail_page.dart';
 export 'package:formcapture/pages/notes_page.dart';
-// export 'package:formcapture/note_sample.dart';
 export 'package:formcapture/pages/test.dart';
 
 export 'package:formcapture/pages/login_page.dart';
@@ -14,7 +13,7 @@ export 'package:formcapture/scan2.dart';
 export 'package:formcapture/result_screen.dart';
 
 // database
-export 'package:formcapture/services/crud/notes_service.dart';
+// export 'package:formcapture/services/crud/notes_service.dart';
 
 // cloud
 export 'package:cloud_firestore/cloud_firestore.dart';
@@ -42,9 +41,12 @@ export 'package:formcapture/services/auth/auth_provider.dart';
 export 'package:formcapture/services/auth/firebase_auth_provider.dart';
 
 export 'package:flutter/material.dart';
+export 'package:share_plus/share_plus.dart';
+// export 'package:flutter/collection.dart';
 
 // constansts
 export 'package:formcapture/routes.dart';
+
 
 
 // export 'package:flutter/src/widgets/basic.dart';
