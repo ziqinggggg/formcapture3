@@ -172,7 +172,8 @@ class _SignUpPageState extends State<SignUpPage> {
                           height: 55,
                           child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black,
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 31, 31, 31),
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20))),
                               onPressed: () async {
@@ -189,18 +190,6 @@ class _SignUpPageState extends State<SignUpPage> {
                                             password: password,
                                             username: username);
 
-                                    // await FirebaseAuth
-                                    //     .instance
-                                    //     .createUserWithEmailAndPassword(
-                                    //         email: email, password: password);
-                                    // await userCredential.user
-                                    //     ?.updateDisplayName(username);
-                                    // await userCredential.user?.reload();
-
-
-                                    // final user =
-                                    //     FirebaseAuth.instance.currentUser;
-                                    // await user?.sendEmailVerification();
                                     await AuthService.firebase()
                                         .sendEmailVerification();
                                     showModalBottomSheet<void>(
@@ -229,25 +218,6 @@ class _SignUpPageState extends State<SignUpPage> {
                                   await showErrorDialog(
                                       context, 'Fail to register');
                                 }
-
-                                // on FirebaseAuthException catch (e) {
-                                //   String errorMessage = 'An error occurred.';
-
-                                //   if (e.code == 'weak-password') {
-                                //     errorMessage =
-                                //         'Weak password. Password should be at least 6 characters.';
-                                //   } else if (e.code == 'email-already-in-use') {
-                                //     errorMessage = 'Email already in use.';
-                                //   } else if (e.code == 'invalid-email') {
-                                //     errorMessage = 'Invalid email entered.';
-                                //   } else {
-                                //     errorMessage = 'Error: ${e.code}';
-                                //   }
-                                //   // Display error dialog
-                                //   await showErrorDialog(context, errorMessage);
-                                // } catch (e) {
-                                //   await showErrorDialog(context, e.toString());
-                                // }
                               },
                               child: const Text(
                                 'Sign Up',
@@ -268,10 +238,14 @@ class _SignUpPageState extends State<SignUpPage> {
                                     builder: (context) => const LogInPage()));
                           },
                           child: RichText(
-                            text: const TextSpan(
-                              style:
-                                  TextStyle(color: Colors.black, fontSize: 16),
-                              children: <TextSpan>[
+                            text: TextSpan(
+                              style: TextStyle(
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? Colors.black
+                                      : Colors.white,
+                                  fontSize: 16),
+                              children: const <TextSpan>[
                                 TextSpan(
                                   text: 'Already have an account? ',
                                 ),

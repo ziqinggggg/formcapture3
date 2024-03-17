@@ -1,8 +1,8 @@
 // // scan.dart
 
-// import 'dart:io';
+// import 'package:formcapture/imports.dart';
 
-// import 'package:formcapture/pages.dart';import 'package:camera/camera.dart';
+// import 'package:camera/camera.dart';
 // import 'package:permission_handler/permission_handler.dart';
 // import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
@@ -55,15 +55,8 @@
 //       final inputImage = InputImage.fromFile(file);
 //       final recognizedText = await textRecognizer.processImage(inputImage);
 
-//       Navigator.of(context).push(
-//         MaterialPageRoute(
-//           builder: (BuildContext context) => NoteDetail(
-//             note: recognizedText.text,
-//             // Set the recognized text as the title for simplicity
-//             // You can modify this part based on your requirements
-//           ),
-//         ),
-//       );
+//       Navigator.pop(context, recognizedText.text);
+
 //     } catch (e) {
 //       ScaffoldMessenger.of(context).showSnackBar(
 //         const SnackBar(

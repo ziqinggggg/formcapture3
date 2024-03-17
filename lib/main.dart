@@ -1,6 +1,7 @@
 // main.dart
 
 import 'package:formcapture/imports.dart';
+import 'dart:developer' as devtools show log;
 
 // void main() async {
 //   WidgetsFlutterBinding.ensureInitialized();
@@ -24,29 +25,54 @@ import 'package:formcapture/imports.dart';
 //   }
 // }
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final savedThemeMode = await AdaptiveTheme.getThemeMode();
   runApp(
-    MaterialApp(
-      // supportedLocales: AppLocalizations.supportedLocales,
-      // localizationsDelegates: AppLocalizations.localizationsDelegates,
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
+    AdaptiveTheme(
+      light: ThemeData(
         useMaterial3: true,
+        brightness: Brightness.light,
+        colorScheme: const ColorScheme.light(
+          secondaryContainer: Colors.grey,
+          primary: Colors.black,
+          surface: Colors.white,
+          surfaceVariant: Colors.white,
+          onSurface: Colors.black,
+        ),
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      // home: BlocProvider<AuthBloc>(
-      //   create: (context) => AuthBloc(FirebaseAuthProvider()),
-      //   child: const HomePage(),
-      // ),
-      // routes: {
-      //   createOrUpdateNoteRoute: (context) => const CreateUpdateNoteView(),
-      // },
-      home: const HomePage(),
-      routes: {
-        notesRoute: (context) => const NotesPage(),
-        '/createnote/': (context) => const CreateUpdateNote(),
-      },
+
+      dark: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        colorScheme: const ColorScheme.dark(
+          primary: Colors.white,
+        ),
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      initial: await AdaptiveTheme.getThemeMode() ?? AdaptiveThemeMode.light,
+
+      builder: (theme, darkTheme) => MaterialApp(
+        // supportedLocales: AppLocalizations.supportedLocales,
+        // localizationsDelegates: AppLocalizations.localizationsDelegates,
+        debugShowCheckedModeBanner: false,
+        theme: theme,
+        darkTheme: darkTheme,
+        // home: BlocProvider<AuthBloc>(
+        //   create: (context) => AuthBloc(FirebaseAuthProvider()),
+        //   child: const HomePage(),
+        // ),
+        // routes: {
+        //   createOrUpdateNoteRoute: (context) => const CreateUpdateNoteView(),
+        // },
+        home: const HomePage(),
+        routes: {
+          notesRoute: (context) => const NotesPage(),
+          '/createnote/': (context) => const CreateUpdateNote(),
+          // '/route/': (context) => const Scaner(),
+        },
+      ),
     ),
   );
 }

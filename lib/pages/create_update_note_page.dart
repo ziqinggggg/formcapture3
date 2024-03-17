@@ -2,11 +2,12 @@
 
 import 'package:formcapture/imports.dart';
 import 'dart:developer' as devtools show log;
+import 'package:intl/intl.dart';
 
 class CreateUpdateNote extends StatefulWidget {
   const CreateUpdateNote({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<CreateUpdateNote> createState() => _CreateUpdateNoteState();
@@ -15,11 +16,14 @@ class CreateUpdateNote extends StatefulWidget {
 class _CreateUpdateNoteState extends State<CreateUpdateNote> {
   // DatabaseNote? _note;
   // late final NotesService _notesService;
+
   CloudNote? _note;
   late final FirebaseCloudStorage _notesService;
 
   late final TextEditingController _titleController;
   late final TextEditingController _textController;
+  late final String createdDate;
+  String? scannedText;
 
   @override
   void initState() {
@@ -70,8 +74,13 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
 
     if (widgetNote != null) {
       _note = widgetNote;
-      _titleController.text = widgetNote.title;
-      _textController.text = widgetNote.text;
+      if (_titleController.text.isEmpty && _textController.text.isEmpty) {
+        _titleController.text = widgetNote.title;
+        _textController.text = widgetNote.text;
+      }
+      createdDate = DateFormat('yyyy/MM/dd HH:mm')
+          .format(widgetNote.createdDate.toDate());
+
       return widgetNote;
     }
 
@@ -83,7 +92,9 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
     final currentUser = AuthService.firebase().currentUser!;
     final userId = currentUser.id;
     final newNote = await _notesService.createNewNote(ownerUserId: userId);
+    createdDate = DateFormat('yyyy/MM/dd HH:mm').format(DateTime.now());
     _note = newNote;
+
     return newNote;
   }
 
@@ -119,6 +130,20 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
     }
   }
 
+  // void _saveNote(String? newText) async {
+  //   final note = _note;
+  // final title = _titleController.text;
+  // final text = _textController.text;
+  // if (note != null) {
+  //   await _notesService.updateNote(
+  //     documentId: note.documentId,
+  //     title: title,
+  //     text: text,
+  //   );
+  //   devtools.log('note updated');
+  // }
+  // }
+
   @override
   void dispose() {
     _deleteNoteIfTextIsEmpty();
@@ -128,30 +153,42 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
     super.dispose();
   }
 
+  void insertRecognizedText(String scannedText) async {
+    final currentText = _textController.text;
+    if (currentText.isEmpty) {
+      _textController.text = 'Scanned Text: $scannedText';
+    } else {
+      _textController.text += '\n\nScanned Text: $scannedText';
+    }
+    // _saveNote(null);
+  }
+
+  Future<void> chooseFromGalleryOrCamera() async {
+    // reload
+    setState(() {
+      if (scannedText != null) {
+        devtools.log('scannedText: ' + scannedText!);
+        if (_textController.text.isEmpty) {
+          _textController.text = 'Scanned Text: $scannedText';
+        } else {
+          _textController.text += '\n\nScanned Text: $scannedText';
+        }
+        devtools.log('refreshing');
+        scannedText = null;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    bool lightTheme = Theme.of(context).brightness == Brightness.light;
     return Scaffold(
       appBar: AppBar(
         actions: [
           PopupMenuButton<String>(
             offset: const Offset(0, 50),
             onSelected: (value) async {
-              if (value == 'delete') {
-                bool shoulddelete = await showDeleteConfirmationDialog(
-                    context, 'Are you sure you want to delete note?');
-                if (shoulddelete) {
-                  // // await Navigator.of(context).pushNamedAndRemoveUntil(
-                  // //   '/notes/',
-                  // //   (route) => false,
-                  final note = _note;
-                  await _notesService.deleteNote(documentId: note!.documentId);
-
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const NotesPage()),
-                  );
-                } else {}
-              } else if (value == 'share') {
+              if (value == 'share') {
                 final title = _titleController.text;
                 final text = _textController.text;
                 if (_note == null || (text.isEmpty && title.isEmpty)) {
@@ -159,9 +196,26 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
                 } else {
                   Share.share('Title: ' + title + '\n' + text);
                 }
+              } else if (value == 'delete') {
+                bool shoulddelete = await showDeleteConfirmationDialog(context);
+                if (shoulddelete) {
+                  final note = _note;
+                  await _notesService.deleteNote(documentId: note!.documentId);
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const NotesPage()),
+                  );
+                }
               }
             },
             itemBuilder: (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: 'share',
+                child: ListTile(
+                  leading: Icon(Icons.share),
+                  title: Text('Share'),
+                ),
+              ),
               const PopupMenuItem<String>(
                 value: 'delete',
                 child: SizedBox(
@@ -175,13 +229,6 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
                   ),
                 ),
               ),
-              const PopupMenuItem<String>(
-                value: 'share',
-                child: ListTile(
-                  leading: Icon(Icons.share),
-                  title: Text('Share'),
-                ),
-              ),
             ],
           ),
         ],
@@ -192,46 +239,53 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               _setupTextControllerListener;
-              return SafeArea(
-                bottom: false,
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: Column(
-                      children: [
-                        // const FormattingToolBar(),
-                        TextField(
-                          controller: _titleController,
-                          cursorColor: Colors.black,
-                          maxLines: null,
-                          style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold),
-                          decoration: const InputDecoration(
-                            hintText: 'Title',
-                            hintStyle: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 30,
+              return Container(
+                child: SafeArea(
+                  bottom: false,
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Column(
+                        children: [
+                          // const FormattingToolBar(),
+                          Text(
+                            'Created: $createdDate',
+                            style: TextStyle(
+                              color: lightTheme
+                                  ? Colors.grey.shade700
+                                  : Colors.grey.shade400,
                             ),
-                            border: InputBorder.none,
                           ),
-                        ),
-                        TextField(
-                          controller: _textController,
-                          cursorColor: Colors.black,
-                          keyboardType: TextInputType.multiline,
-                          maxLines: null,
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 22,
+                          TextField(
+                            controller: _titleController,
+                            maxLines: null,
+                            style: const TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.bold),
+                            decoration: const InputDecoration(
+                              hintText: 'Title',
+                              hintStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 30,
+                              ),
+                              border: InputBorder.none,
+                            ),
+                            // onChanged: _saveNote,
                           ),
-                          decoration: const InputDecoration(
-                            hintText: 'Body', //todo: add hint text font
-                            border: InputBorder.none,
+                          TextField(
+                            controller: _textController,
+                            keyboardType: TextInputType.multiline,
+                            maxLines: null,
+                            style: const TextStyle(
+                              fontSize: 22,
+                            ),
+                            decoration: const InputDecoration(
+                              hintText: 'Body', //todo: add hint text font
+                              border: InputBorder.none,
+                            ),
+                            // onChanged: _saveNote,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -243,13 +297,50 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.black,
-        child: const Icon(Icons.camera_alt_outlined, color: Colors.white),
-        onPressed: () async {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const Scaner()),
-          );
+        backgroundColor: lightTheme ? Colors.black : Colors.grey.shade800,
+        child: const Icon(
+          Icons.camera_alt_outlined,
+          color: Colors.white,
+        ),
+        onPressed: () {
+          showMenu(
+            context: context,
+            position: const RelativeRect.fromLTRB(100, 645, 0, 0),
+            items: [
+              const PopupMenuItem(
+                value: 'scanText',
+                child: ListTile(
+                    leading: Icon(Icons.text_fields_rounded),
+                    title: Text('Scan Text')),
+              ),
+              const PopupMenuItem(
+                value: 'scanForm',
+                child: ListTile(
+                    leading: Icon(Icons.document_scanner_outlined),
+                    title: Text('Scan Form')),
+              ),
+            ],
+          ).then((value) async {
+            if (value == 'scanText') {
+              // scannedText = await Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => const Scaner()),
+              // );
+              // insertRecognizedText(scannedText!);
+
+              bool takePhoto = await cameraOrGalleryDialog(context);
+              final String imagePath;
+              if (takePhoto) {
+                imagePath = await pickImage(source: ImageSource.camera);
+              } else {
+                imagePath = await pickImage(source: ImageSource.gallery);
+              }
+              final croppedImagePath = await cropImage(imagePath, context);
+              scannedText = await scanImage(context, croppedImagePath);
+              insertRecognizedText(scannedText!);
+
+            } else if (value == 'scanForm') {}
+          });
         },
       ),
     );

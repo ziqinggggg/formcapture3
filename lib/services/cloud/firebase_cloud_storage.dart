@@ -18,9 +18,6 @@ class FirebaseCloudStorage {
     required String title,
     required String text,
   }) async {
-    // final currentTime = DateTime.now();
-    // final gmtOffset = Duration(hours: 8); // GMT+08:00
-    // final gmtTime = currentTime.add(gmtOffset);
     try {
       await notes.doc(documentId).update({
         titleFieldName: title,
@@ -67,10 +64,6 @@ class FirebaseCloudStorage {
   }
 
   Future<CloudNote> createNewNote({required String ownerUserId}) async {
-    // final currentTime = DateTime.now();
-    // final gmtOffset = Duration(hours: 8); // GMT+08:00
-    // final gmtTime = currentTime.add(gmtOffset);
-
     try {
       final document = await notes.add({
         ownerUserIdFieldName: ownerUserId,

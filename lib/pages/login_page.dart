@@ -35,6 +35,7 @@ class _LogInPageState extends State<LogInPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool lightTheme = Theme.of(context).brightness == Brightness.light;
     return Scaffold(
       body: FutureBuilder(
         future: AuthService.firebase().initialize(),
@@ -142,7 +143,8 @@ class _LogInPageState extends State<LogInPage> {
                           height: 55,
                           child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black,
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 31, 31, 31),
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20))),
                               onPressed: () async {
@@ -151,15 +153,9 @@ class _LogInPageState extends State<LogInPage> {
                                 try {
                                   await AuthService.firebase()
                                       .logIn(email: email, password: password);
-                                  // await FirebaseAuth
-                                  //     .instance
-                                  //     .signInWithEmailAndPassword(
-                                  //         email: email, password: password);
 
-                                  // final User? user = userCredential.user;
                                   final user =
                                       AuthService.firebase().currentUser;
-                                  // if (user != null) {
                                   if (user?.isEmailVerified ?? false) {
                                     // Navigator.push(
                                     //   context,
@@ -173,7 +169,6 @@ class _LogInPageState extends State<LogInPage> {
                                       (route) => false,
                                     );
                                   } else {
-                                    // await user.sendEmailVerification();
                                     await AuthService.firebase()
                                         .sendEmailVerification();
                                     showModalBottomSheet<void>(
@@ -196,22 +191,6 @@ class _LogInPageState extends State<LogInPage> {
                                   await showErrorDialog(
                                       context, 'Authentication error');
                                 }
-                                // on FirebaseAuthException catch (e) {
-                                //   String errorMessage = 'An error occurred.';
-
-                                //   if (e.code == 'user-not-found') {
-                                //     errorMessage = 'User not found.';
-                                //   } else if (e.code == 'wrong-password') {
-                                //     errorMessage = 'Wrong password';
-                                //   } else if (e.code == 'invalid-credential') {
-                                //     errorMessage = 'Invalid credentials';
-                                //   } else {
-                                //     errorMessage = 'Error: ${e.code}';
-                                //   }
-                                //   await showErrorDialog(context, errorMessage);
-                                // } catch (e) {
-                                //   await showErrorDialog(context, e.toString());
-                                // }
                               },
                               child: const Text(
                                 'Login',
@@ -224,28 +203,36 @@ class _LogInPageState extends State<LogInPage> {
                         const SizedBox(
                           height: 20,
                         ),
-                        const Row(
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             Expanded(
                               child: Divider(
-                                color: Colors.black26,
+                                color: lightTheme
+                                    ? Colors.grey.shade400
+                                    : Colors.grey.shade700,
                                 thickness: 1,
                               ),
                             ),
                             Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
                               child: Text(
                                 'OR',
                                 style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black54),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: lightTheme
+                                      ? Colors.grey.shade400
+                                      : Colors.grey.shade700,
+                                ),
                               ),
                             ),
                             Expanded(
                               child: Divider(
-                                color: Colors.black26,
+                                color: lightTheme
+                                    ? Colors.grey.shade400
+                                    : Colors.grey.shade700,
                                 thickness: 1,
                               ),
                             ),
@@ -277,10 +264,12 @@ class _LogInPageState extends State<LogInPage> {
                                     builder: (context) => const SignUpPage()));
                           },
                           child: RichText(
-                            text: const TextSpan(
-                              style:
-                                  TextStyle(color: Colors.black, fontSize: 16),
-                              children: <TextSpan>[
+                            text: TextSpan(
+                              style: TextStyle(
+                                  color:
+                                      lightTheme ? Colors.black : Colors.white,
+                                  fontSize: 16),
+                              children: const <TextSpan>[
                                 TextSpan(
                                   text: 'Don\'t have an account? ',
                                 ),

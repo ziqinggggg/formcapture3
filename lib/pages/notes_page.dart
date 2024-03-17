@@ -16,6 +16,7 @@ class NotesPage extends StatefulWidget {
 class _NotesPageState extends State<NotesPage> {
   late final FirebaseCloudStorage _notesService;
   // late final NotesService _notesService;
+  bool sortByCreatedDate = true;
 
   String get userId => AuthService.firebase().currentUser!.id;
   // String get userEmail => AuthService.firebase().currentUser!.email;
@@ -29,35 +30,34 @@ class _NotesPageState extends State<NotesPage> {
 
   @override
   Widget build(BuildContext context) {
-    bool sortByCreatedDate = true;
+    bool lightTheme = Theme.of(context).brightness == Brightness.light;
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           'My notes',
           style: TextStyle(
-              color: Colors.black, fontSize: 35, fontWeight: FontWeight.bold),
+              // color: Colors.black,
+              fontSize: 35,
+              fontWeight: FontWeight.bold),
         ),
         actions: [
           PopupMenuButton<String>(
             offset: const Offset(0, 50),
             onSelected: (value) async {
               if (value == 'sorting') {
-                // setState(() {
-                //   sortByCreatedDate = !sortByCreatedDate;
-                // });
-                // await Navigator.push(
-                //     context,
-                //     MaterialPageRoute(builder: (context) => const NotesPage()),
-                //   );
-              } else if (value == 'settings') {
-                // Handle the Settings option
+                setState(() {
+                  sortByCreatedDate = !sortByCreatedDate;
+                });
+              } else if (value == 'theme') {
+                setState(() {
+                  AdaptiveTheme.of(context).toggleThemeMode();
+                });
               } else if (value == 'share') {
-                // Handle the Share option
               } else if (value == 'signOut') {
-                bool shouldSignOut = await showAlertDialog(
-                    context, 'Are you sure you want to sign out?');
+                bool shouldSignOut = await showSignOutConfirmationDialog(
+                  context,
+                );
                 if (shouldSignOut) {
-                  // await FirebaseAuth.instance.signOut();
                   await AuthService.firebase().signOut();
                   Navigator.push(
                     context,
@@ -78,12 +78,20 @@ class _NotesPageState extends State<NotesPage> {
                   ),
                 ),
               ),
-              const PopupMenuItem<String>(
-                value: 'settings',
+              PopupMenuItem<String>(
+                value: 'theme',
                 child: SizedBox(
                   child: ListTile(
-                    leading: Icon(Icons.settings),
-                    title: Text('Settings'),
+                    leading: Icon(lightTheme
+                        ? Icons.light_mode_outlined
+                        : Icons.dark_mode_outlined),
+                    title: Text(
+                      AdaptiveTheme.of(context).mode.isLight
+                          ? 'Light Theme'
+                          : (AdaptiveTheme.of(context).mode.isDark
+                              ? 'Dark Theme'
+                              : 'System'),
+                    ),
                   ),
                 ),
               ),
@@ -105,41 +113,6 @@ class _NotesPageState extends State<NotesPage> {
           ),
         ],
       ),
-      drawer: Container(
-        width: 200,
-        child: Drawer(
-          child: ListView(
-            padding: const EdgeInsets.only(top: 40),
-            children: [
-              ListTile(
-                leading: const Icon(Icons.settings),
-                title: const Text('Settings'),
-                onTap: () {},
-              ),
-              ListTile(
-                leading: const Icon(Icons.share),
-                title: const Text('Share'),
-                onTap: () {},
-              ),
-              ListTile(
-                leading: const Icon(Icons.account_circle),
-                title: const Text('Login'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LogInPage()),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.exit_to_app_rounded),
-                title: const Text('Sign Out'),
-                onTap: () {},
-              ),
-            ],
-          ),
-        ),
-      ),
       body: StreamBuilder(
           stream: _notesService.allNotes(
               ownerUserId: userId, sortByCreatedDate: sortByCreatedDate),
@@ -149,16 +122,6 @@ class _NotesPageState extends State<NotesPage> {
               case ConnectionState.active:
                 if (snapshot.hasData) {
                   final allNotes = snapshot.data as Iterable<CloudNote>;
-                  // final allNotesList = allNotes.toList();
-                  // if (sortByCreatedDate) {
-                  //   allNotesList.sort((a, b) => b.createdDate
-                  //       .toDate()
-                  //       .compareTo(a.createdDate.toDate()));
-                  // } else {
-                  //   allNotesList.sort((a, b) => b.createdDate
-                  //       .toDate()
-                  //       .compareTo(a.modifiedDate.toDate()));
-                  // }
                   if (allNotes.isNotEmpty) {
                     return SafeArea(
                       bottom: false,
@@ -166,32 +129,12 @@ class _NotesPageState extends State<NotesPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 15),
                         child: Column(
                           children: [
-                            // ListTile(
-                            //   title: const Text(
-                            //     'My notes',
-                            //     style: TextStyle(
-                            //         color: Colors.black,
-                            //         fontSize: 35,
-                            //         fontWeight: FontWeight.bold),
-                            //   ),
-                            //   trailing: IconButton(
-                            //     icon: const Icon(Icons.more_horiz),
-                            //     onPressed: () {
-                            //       // showModalBottomSheet<void>(
-                            //       //   context: context,
-                            //       //   builder: (BuildContext context) {
-                            //       //     return const MainMBS();
-                            //       //   },
-                            //       // );
-                            //     },
-                            //   ),
-                            // ),
-
                             const SizedBox(
                               height: 15,
                             ),
                             NotePreview(
                               notes: allNotes,
+                              sortByCreatedDate: sortByCreatedDate,
                               onTap: (note) {
                                 Navigator.of(context).pushNamed(
                                   '/createnote/',
@@ -244,7 +187,7 @@ class _NotesPageState extends State<NotesPage> {
             }
           }),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.white,
+        backgroundColor: lightTheme ? Colors.white : Colors.grey.shade800,
         onPressed: () {
           // Navigator.push(
           //   context,
@@ -252,9 +195,9 @@ class _NotesPageState extends State<NotesPage> {
           // );
           Navigator.of(context).pushNamed('/createnote/');
         },
-        child: const Icon(
+        child: Icon(
           Icons.add,
-          color: Colors.black,
+          color: lightTheme ? Colors.black : Colors.white,
           size: 32,
         ),
       ),
@@ -268,36 +211,31 @@ class NotePreview extends StatelessWidget {
   final Iterable<CloudNote> notes;
   final NoteCallBack onTap;
   final NoteCallBack onDelete;
+  final bool sortByCreatedDate;
 
   const NotePreview({
     super.key,
     required this.notes,
     required this.onTap,
     required this.onDelete,
+    required this.sortByCreatedDate,
   });
 
   String getRelativeTime(DateTime date) {
-    const gmtOffset = Duration(hours: 8); // GMT+08:00
+    final dateMidnight = DateTime(date.year, date.month, date.day, 0, 0, 0);
+    final currentDateMidnight = DateTime(
+        DateTime.now().year, DateTime.now().month, DateTime.now().day, 0, 0, 0);
 
-    final currentDate = DateTime.now().add(gmtOffset);
-    final createdDate = date.add(gmtOffset);
-
-    final createdDateMidnight =
-        DateTime(createdDate.year, createdDate.month, createdDate.day, 0, 0, 0);
-    final currentDateMidnight =
-        DateTime(currentDate.year, currentDate.month, currentDate.day, 0, 0, 0);
-
-    final difference =
-        currentDateMidnight.difference(createdDateMidnight).inDays;
+    final difference = currentDateMidnight.difference(dateMidnight).inDays;
 
     if (difference == 0) {
-      return DateFormat('HH:mm').format(createdDate);
+      return DateFormat('HH:mm').format(date);
     } else if (difference == 1) {
       return 'Yesterday';
     } else if (difference < 7) {
-      return DateFormat('EEEE').format(createdDate); // Day of the week
+      return DateFormat('EEEE').format(date); // Day of the week
     } else {
-      return DateFormat('yyyy/MM/dd').format(createdDate); // Default format
+      return DateFormat('yyyy/MM/dd').format(date); // Default format
     }
   }
 
@@ -310,14 +248,10 @@ class NotePreview extends StatelessWidget {
           final note = notes.elementAt(index);
           return Card(
             elevation: 3,
-            // margin: const EdgeInsets.only(bottom: 20),
             margin: const EdgeInsets.symmetric(vertical: 10),
-            // child: InkWell(
-            //   borderRadius: BorderRadius.circular(210),
-            //   splashColor: Colors.blue,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-              // const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+              // padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
               child: Container(
                 clipBehavior: Clip.hardEdge,
                 decoration: const BoxDecoration(),
@@ -349,8 +283,7 @@ class NotePreview extends StatelessWidget {
                           onPressed: (BuildContext context) async {
                             try {
                               bool shoulddelete =
-                                  await showDeleteConfirmationDialog(context,
-                                      'Are you sure you want to delete note?');
+                                  await showDeleteConfirmationDialog(context);
                               if (shoulddelete) {
                                 onDelete(note);
                               } else {}
@@ -369,7 +302,7 @@ class NotePreview extends StatelessWidget {
                       children: [
                         ListTile(
                           title: Text(
-                            note.title,
+                            note.title.trim(),
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 20),
                           ),
@@ -379,12 +312,15 @@ class NotePreview extends StatelessWidget {
                             // DateFormat('yyyy/MM/dd HH:mm')
                             //         .format(note.createdDate.toDate())
                             //         .toString() +
-                            //     '  ' +
-                            getRelativeTime(note.createdDate.toDate()) +
+                            // '  ' +
+                            getRelativeTime(sortByCreatedDate
+                                    ? note.createdDate.toDate()
+                                    : note.modifiedDate.toDate()) +
                                 '  ' +
-                                note.text,
+                                note.text.trim(),
+
                             style: const TextStyle(
-                              color: Color.fromARGB(255, 95, 95, 95),
+                              color: Color.fromARGB(255, 121, 121, 121),
                               fontFamily: 'inter',
                               fontSize: 16,
                             ),
