@@ -13,7 +13,7 @@ class LogInPage extends StatefulWidget {
 class _LogInPageState extends State<LogInPage> {
   late final TextEditingController _email;
   late final TextEditingController _password;
-  CloseDialog? _closeDialogHandle;
+  // CloseDialog? _closeDialogHandle;
 
   @override
   void initState() {
@@ -37,16 +37,15 @@ class _LogInPageState extends State<LogInPage> {
     bool lightTheme = Theme.of(context).brightness == Brightness.light;
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) async {
-        if (state is AuthStateLoggedOut) {
-          final closeDialog = _closeDialogHandle;
-
-          if (!state.isLoading && closeDialog != null) {
-            closeDialog();
-            _closeDialogHandle = null;
-          } else if (state.isLoading && closeDialog == null) {
-            _closeDialogHandle =
-                showLoadingDialog(context: context, text: 'Loading...');
-          }
+        if (state is AuthStateLSignedOut) {
+          // final closeDialog = _closeDialogHandle;
+          // if (!state.isLoading && closeDialog != null) {
+          //   closeDialog();
+          //   _closeDialogHandle = null;
+          // } else if (state.isLoading && closeDialog == null) {
+          //   _closeDialogHandle =
+          //       showLoadingDialog(context: context, text: 'Loading...');
+          // }
 
           if (state.exception is UserNotFoundAuthException) {
             await showErrorDialog(context, 'User not found.');
@@ -261,7 +260,7 @@ class _LogInPageState extends State<LogInPage> {
                     onPressed: () {
                       context
                           .read<AuthBloc>()
-                          .add(const AuthEventShouldRegister());
+                          .add(const AuthEventShouldSignUp());
                     },
                     child: RichText(
                       text: TextSpan(

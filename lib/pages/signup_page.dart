@@ -1,8 +1,6 @@
 import 'package:formcapture/imports.dart';
 import 'dart:developer' as devtools show log;
 
-import 'package:formcapture/services/auth/bloc/auth_event.dart';
-
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
 
@@ -38,7 +36,7 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) async {
-        if (state is AuthStateRegistering) {
+        if (state is AuthStateSigningUp) {
           // final closeDialog = _closeDialogHandle;
 
           // if (!state.isLoading && closeDialog != null) {
@@ -208,7 +206,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               email.isNotEmpty &&
                               password.isNotEmpty) {
                             context.read<AuthBloc>().add(
-                                  AuthEventRegister(email, password, username),
+                                  AuthEventSignUp(email, password, username),
                                 );
                             context.read<AuthBloc>().add(
                                   const AuthEventSendEmailVerification(),
@@ -232,7 +230,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   TextButton(
                     onPressed: () {
                       context.read<AuthBloc>().add(
-                            const AuthEventLogOut(),
+                            const AuthEventSignOut(),
                           );
                     },
                     child: RichText(

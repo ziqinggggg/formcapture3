@@ -137,7 +137,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                         ),
                         onPressed: () async {
                           context.read<AuthBloc>().add(
-                                const AuthEventLogOut(),
+                                const AuthEventSignOut(),
                               );
 
                           // Navigator.push(

@@ -5,7 +5,6 @@
 export 'package:formcapture/pages/create_update_note_page.dart';
 export 'package:formcapture/unused/note_detail_page.dart';
 export 'package:formcapture/pages/notes_page.dart';
-export 'package:formcapture/pages/test.dart';
 
 export 'package:formcapture/pages/login_page.dart';
 export 'package:formcapture/pages/signup_page.dart';
@@ -13,6 +12,9 @@ export 'package:formcapture/utilities/scan_image.dart';
 export 'package:formcapture/utilities/image_cropper.dart';
 export 'package:formcapture/utilities/image_picker.dart';
 export 'package:formcapture/pages/input_form.dart';
+
+export 'package:formcapture/loading/loading_screen_controller.dart';
+export 'package:formcapture/loading/loading_screen.dart';
 
 // database
 // export 'package:formcapture/services/crud/notes_service.dart';
@@ -27,7 +29,7 @@ export 'package:formcapture/services/cloud/firebase_cloud_storage.dart';
 // widgets
 export 'package:formcapture/unused/verify_email_menu%20func.dart';
 export 'package:formcapture/unused/verify_email_menu%20copy.dart';       //!
-export 'package:formcapture/utilities/verify_email_menu.dart';
+export 'package:formcapture/pages/verify_email_page.dart';
 export 'package:formcapture/utilities/show_dialog.dart';
 export 'package:formcapture/utilities/generic_dialog.dart';
 export 'package:formcapture/utilities/get_arguments.dart';

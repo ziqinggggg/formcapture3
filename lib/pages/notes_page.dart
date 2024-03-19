@@ -72,13 +72,13 @@ class _NotesPageState extends State<NotesPage> {
                   context,
                 );
                 if (shouldSignOut) {
-                  context.read<AuthBloc>().add(const AuthEventLogOut());
+                  context.read<AuthBloc>().add(const AuthEventSignOut());
                   // await AuthService.firebase().signOut();
                   // Navigator.push(
                   //   context,
                   //   MaterialPageRoute(builder: (context) => const LogInPage()),
                   // );
-                } 
+                }
               }
             },
             itemBuilder: (BuildContext context) => [
