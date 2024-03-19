@@ -19,13 +19,30 @@ class _NotesPageState extends State<NotesPage> {
   bool sortByCreatedDate = true;
 
   String get userId => AuthService.firebase().currentUser!.id;
+  String get username => AuthService.firebase().currentUser!.username;
   // String get userEmail => AuthService.firebase().currentUser!.email;
 
   @override
   void initState() {
     _notesService = FirebaseCloudStorage();
     // _notesService = NotesService();
+    _loadSortingPreference();
     super.initState();
+  }
+
+  void _saveSortingPreference(bool sortByCreatedDate) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('sortByCreatedDate', sortByCreatedDate);
+  }
+
+  void _loadSortingPreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? sortByCreatedDate = prefs.getBool('sortByCreatedDate');
+    if (sortByCreatedDate != null) {
+      setState(() {
+        this.sortByCreatedDate = sortByCreatedDate;
+      });
+    }
   }
 
   @override
@@ -33,12 +50,9 @@ class _NotesPageState extends State<NotesPage> {
     bool lightTheme = Theme.of(context).brightness == Brightness.light;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'My notes',
-          style: TextStyle(
-              // color: Colors.black,
-              fontSize: 35,
-              fontWeight: FontWeight.bold),
+        title: Text(
+          username,
+          style: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
         ),
         actions: [
           PopupMenuButton<String>(
@@ -48,22 +62,23 @@ class _NotesPageState extends State<NotesPage> {
                 setState(() {
                   sortByCreatedDate = !sortByCreatedDate;
                 });
+                _saveSortingPreference(sortByCreatedDate);
               } else if (value == 'theme') {
                 setState(() {
                   AdaptiveTheme.of(context).toggleThemeMode();
                 });
-              } else if (value == 'share') {
               } else if (value == 'signOut') {
                 bool shouldSignOut = await showSignOutConfirmationDialog(
                   context,
                 );
                 if (shouldSignOut) {
-                  await AuthService.firebase().signOut();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LogInPage()),
-                  );
-                } else {}
+                  context.read<AuthBloc>().add(const AuthEventLogOut());
+                  // await AuthService.firebase().signOut();
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => const LogInPage()),
+                  // );
+                } 
               }
             },
             itemBuilder: (BuildContext context) => [
@@ -93,13 +108,6 @@ class _NotesPageState extends State<NotesPage> {
                               : 'System'),
                     ),
                   ),
-                ),
-              ),
-              const PopupMenuItem<String>(
-                value: 'share',
-                child: ListTile(
-                  leading: Icon(Icons.share),
-                  title: Text('Share'),
                 ),
               ),
               const PopupMenuItem<String>(

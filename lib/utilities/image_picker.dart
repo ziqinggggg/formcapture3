@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:formcapture/imports.dart';
 
-Future<String> pickImage({ImageSource? source}) async {
+Future<String> pickImage(context, {ImageSource? source}) async {
 
   String path = '';
 
@@ -14,7 +14,7 @@ Future<String> pickImage({ImageSource? source}) async {
       path = '';
     }
   } catch (e) {
-    log(e.toString());
+    showErrorDialog(context, "Failed to select an image. Please try again.");
   }
 
   return path;

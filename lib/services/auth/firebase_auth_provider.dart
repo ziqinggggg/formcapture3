@@ -1,8 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:formcapture/firebase_options.dart';
-// import 'package:formcapture/services/auth/auth_user.dart';
-// import 'package:formcapture/services/auth/auth_provider.dart';
-// import 'package:formcapture/services/auth/auth_exception.dart';
 import 'package:formcapture/imports.dart';
 
 import 'package:firebase_auth/firebase_auth.dart'

@@ -12,14 +12,11 @@ Future<String?> scanImage(context, path) async {
     return recognizedText.text;
     // Navigator.pop(context, recognizedText.text);
   } catch (e) {
-    devtools.log('An error occurred when scanning text');
-    devtools.log(e.toString());
     showErrorDialog(context, "An error occurred when scanning text");
     // ScaffoldMessenger.of(context).showSnackBar(
     //   const SnackBar(
     //     content: Text('An error occurred when scanning text'),
     //   ),
     // );
-    throw e;
   }
 }

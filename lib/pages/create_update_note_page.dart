@@ -163,20 +163,15 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
     // _saveNote(null);
   }
 
-  Future<void> chooseFromGalleryOrCamera() async {
-    // reload
-    setState(() {
-      if (scannedText != null) {
-        devtools.log('scannedText: ' + scannedText!);
-        if (_textController.text.isEmpty) {
-          _textController.text = 'Scanned Text: $scannedText';
-        } else {
-          _textController.text += '\n\nScanned Text: $scannedText';
-        }
-        devtools.log('refreshing');
-        scannedText = null;
-      }
-    });
+  Future<String> chooseFromGalleryOrCamera() async {
+    bool takePhoto = await cameraOrGalleryDialog(context);
+    final String? imagePath;
+    if (takePhoto) {
+      imagePath = await pickImage(context, source: ImageSource.camera);
+    } else {
+      imagePath = await pickImage(context, source: ImageSource.gallery);
+    }
+    return cropImage(context, imagePath);
   }
 
   @override
@@ -322,24 +317,17 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
             ],
           ).then((value) async {
             if (value == 'scanText') {
-              // scannedText = await Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => const Scaner()),
-              // );
-              // insertRecognizedText(scannedText!);
-
-              bool takePhoto = await cameraOrGalleryDialog(context);
-              final String imagePath;
-              if (takePhoto) {
-                imagePath = await pickImage(source: ImageSource.camera);
-              } else {
-                imagePath = await pickImage(source: ImageSource.gallery);
-              }
-              final croppedImagePath = await cropImage(imagePath, context);
-              scannedText = await scanImage(context, croppedImagePath);
+              final selectedImagePath = await chooseFromGalleryOrCamera();
+              scannedText = await scanImage(context, selectedImagePath);
               insertRecognizedText(scannedText!);
-
-            } else if (value == 'scanForm') {}
+            } else if (value == 'scanForm') {
+              final selectedImagePath = await chooseFromGalleryOrCamera();
+              scannedText = await scanImage(context, selectedImagePath);
+              Navigator.of(context).pushNamed(
+                                  '/forminput/',
+                                  arguments: scannedText,
+                                );
+            }
           });
         },
       ),

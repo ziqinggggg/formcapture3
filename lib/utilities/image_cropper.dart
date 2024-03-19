@@ -1,8 +1,7 @@
 import 'dart:developer' as devtools show log;
 import 'package:formcapture/imports.dart';
 
-Future<String> cropImage(String path, BuildContext context) async {
-  devtools.log('cropping image');
+Future<String> cropImage(BuildContext context, String path) async {
   CroppedFile? croppedFile = await ImageCropper().cropImage(
     sourcePath: path,
 
@@ -23,10 +22,8 @@ Future<String> cropImage(String path, BuildContext context) async {
     ],
   );
   if (croppedFile != null) {
-    devtools.log("Image cropped");
     return croppedFile.path;
   } else {
-    devtools.log("Do nothing");
     return '';
   }
 }
