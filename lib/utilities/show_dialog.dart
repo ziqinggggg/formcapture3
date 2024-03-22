@@ -90,3 +90,14 @@ Future<bool> cameraOrGalleryDialog(BuildContext context) {
     (value) => value ?? false,
   );
 }
+
+Future<void> showResetPasswordSentDialog(BuildContext context) {
+  return showGenericDialog<bool>(
+    context: context,
+    title: 'Reset Password',
+    content: "We've sent a reset password link to your account, please check your email for more information.",
+    optionsBuilder: () => {
+      'OK': null,
+    },
+  );
+}

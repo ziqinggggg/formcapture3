@@ -46,13 +46,15 @@ class AuthStateNeedsVerification extends AuthState {
       : super(isLoading: isLoading);
 }
 
-class AuthStateLSignedOut extends AuthState with EquatableMixin {
+class AuthStateSignedOut extends AuthState with EquatableMixin {
   final Exception? exception;
-  const AuthStateLSignedOut({
+  const AuthStateSignedOut({
     required this.exception,
     required bool isLoading,
+    String? loadingText,
   }) : super(
           isLoading: isLoading,
+          loadingText: loadingText,
         );
 
   @override

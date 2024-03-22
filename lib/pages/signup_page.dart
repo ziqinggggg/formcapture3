@@ -206,7 +206,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               email.isNotEmpty &&
                               password.isNotEmpty) {
                             context.read<AuthBloc>().add(
-                                  AuthEventSignUp(email, password, username),
+                                  AuthEventRegister(email, password, username),
                                 );
                             context.read<AuthBloc>().add(
                                   const AuthEventSendEmailVerification(),

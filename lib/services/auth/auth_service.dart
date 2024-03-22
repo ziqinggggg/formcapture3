@@ -3,7 +3,6 @@
 // import 'package:formcapture/services/auth/firebase_auth_provider.dart';
 import 'package:formcapture/imports.dart';
 
-
 class AuthService implements AuthProvider {
   final AuthProvider provider;
   const AuthService(this.provider);
@@ -45,6 +44,6 @@ class AuthService implements AuthProvider {
   Future<void> initialize() => provider.initialize();
 
   @override
-  Future<void> sendPasswordReset({required String toEmail}) =>
-      provider.sendPasswordReset(toEmail: toEmail);
+  Future<void> sendPasswordReset({required String email}) =>
+      provider.sendPasswordReset(email: email);
 }

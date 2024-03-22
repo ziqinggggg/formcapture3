@@ -3,7 +3,6 @@
 
 // pages
 export 'package:formcapture/pages/create_update_note_page.dart';
-export 'package:formcapture/unused/note_detail_page.dart';
 export 'package:formcapture/pages/notes_page.dart';
 
 export 'package:formcapture/pages/login_page.dart';
@@ -12,6 +11,8 @@ export 'package:formcapture/utilities/scan_image.dart';
 export 'package:formcapture/utilities/image_cropper.dart';
 export 'package:formcapture/utilities/image_picker.dart';
 export 'package:formcapture/pages/input_form.dart';
+export 'package:formcapture/pages/verify_email_page.dart';
+export 'package:formcapture/pages/reset_password_page.dart';
 
 export 'package:formcapture/loading/loading_screen_controller.dart';
 export 'package:formcapture/loading/loading_screen.dart';
@@ -27,9 +28,6 @@ export 'package:formcapture/services/cloud/cloud_storage_exceptions.dart';
 export 'package:formcapture/services/cloud/firebase_cloud_storage.dart';
 
 // widgets
-export 'package:formcapture/unused/verify_email_menu%20func.dart';
-export 'package:formcapture/unused/verify_email_menu%20copy.dart';       //!
-export 'package:formcapture/pages/verify_email_page.dart';
 export 'package:formcapture/utilities/show_dialog.dart';
 export 'package:formcapture/utilities/generic_dialog.dart';
 export 'package:formcapture/utilities/get_arguments.dart';
@@ -59,6 +57,8 @@ export 'package:shared_preferences/shared_preferences.dart';
 export 'package:bloc/bloc.dart';
 export 'package:flutter_bloc/flutter_bloc.dart';
 export 'package:equatable/equatable.dart';
+export 'package:editable/editable.dart';
+export 'package:expandable_datatable/expandable_datatable.dart';
 
 // bloc
 export 'package:formcapture/services/auth/bloc/auth_event.dart';

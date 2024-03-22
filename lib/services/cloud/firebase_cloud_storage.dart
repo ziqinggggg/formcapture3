@@ -17,12 +17,16 @@ class FirebaseCloudStorage {
     required String documentId,
     required String title,
     required String text,
+    required List<Map<String, dynamic>?>? formData,
+    required List formHeader,
   }) async {
     try {
       await notes.doc(documentId).update({
         titleFieldName: title,
         textFieldName: text,
-        modifiedDateFieldName: Timestamp.fromDate(DateTime.now())
+        modifiedDateFieldName: Timestamp.fromDate(DateTime.now()),
+        formDataFieldName: formData,
+        formHeaderFieldName: formHeader
       });
     } catch (e) {
       throw CouldNotUpdateNoteException();
@@ -71,6 +75,8 @@ class FirebaseCloudStorage {
         textFieldName: '',
         createdDateFieldName: Timestamp.fromDate(DateTime.now()),
         modifiedDateFieldName: Timestamp.fromDate(DateTime.now()),
+        formDataFieldName: [],
+        formHeaderFieldName: [],
       });
       final fetchedNote = await document.get();
 
@@ -81,6 +87,8 @@ class FirebaseCloudStorage {
         text: '',
         createdDate: Timestamp.fromDate(DateTime.now()),
         modifiedDate: Timestamp.fromDate(DateTime.now()),
+        formData: [],
+        formHeader: [],
       );
     } catch (e) {
       throw CouldNotCreateNoteException();

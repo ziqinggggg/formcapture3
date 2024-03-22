@@ -1,9 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:formcapture/imports.dart';
 import 'dart:developer' as devtools show log;
 
 class InputForm extends StatefulWidget {
-  const InputForm({super.key});
+  final dynamic path;
+  const InputForm({
+    super.key,
+    required this.path,
+  });
 
   @override
   _InputFormState createState() => _InputFormState();
@@ -11,10 +14,7 @@ class InputForm extends StatefulWidget {
 
 class _InputFormState extends State<InputForm> {
   List<TextEditingController> controllers = [];
-  late final TextEditingController _scannedTextController;
-  late final TextEditingController _generatedTextController;
-  late String _scannedText;
-  String? _generatedText;
+  late List<String> formFields = [];
 
   @override
   void initState() {
@@ -23,7 +23,6 @@ class _InputFormState extends State<InputForm> {
     for (int i = 0; i < 3; i++) {
       controllers.add(TextEditingController());
     }
-    _scannedTextController = TextEditingController();
   }
 
   @override
@@ -32,7 +31,7 @@ class _InputFormState extends State<InputForm> {
     for (var controller in controllers) {
       controller.dispose();
     }
-    _scannedTextController.dispose();
+    // _textController.dispose();
     super.dispose();
   }
 
@@ -48,22 +47,17 @@ class _InputFormState extends State<InputForm> {
     });
   }
 
-  Map<String, String> generateFormInfo() {
-    devtools.log('_scannedTextController.text' + _scannedTextController.text);
-    devtools.log('controllers' + controllers.toString());
-    Map<String, String> formFields = {};
+  List<String> generateFormInfo() {
+    // devtools.log('_scannedTextController.text' + _textController.text);
+    // devtools.log('controllers' + controllers.toString());
 
     for (int i = 0; i < controllers.length; i++) {
-      String key = controllers[i].text;
-      formFields[(controllers[i].text)] = '';
+      if (controllers[i].text.isNotEmpty) {
+        String field = controllers[i].text;
+        formFields.add(field);
+      }
     }
-    _generatedText;
     return formFields;
-  }
-
-  void getScannedText(BuildContext context) {
-    _scannedText = context.getArgument<String>()!;
-    _scannedTextController.text = _scannedText;
   }
 
   @override
@@ -77,19 +71,11 @@ class _InputFormState extends State<InputForm> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        // actions: [
-        //   IconButton(
-        //     icon: Icon(Icons.done),
-        //     onPressed: () {
-        //       Map<int, String> formFields = getFormFields();
-        //       // Use the formFields map as needed
-        //       print(formFields);
-        //     },
-        //   ),
-        // ],
         actions: [
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pop(context, generateFormInfo());
+            },
             child: const Text(
               'Done',
               style: TextStyle(
@@ -99,105 +85,109 @@ class _InputFormState extends State<InputForm> {
           ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            child: TextField(
-              controller: _scannedTextController,
-              maxLines: null,
-              style: const TextStyle(
-                fontSize: 22,
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+            return Container(
+              constraints: BoxConstraints(
+                maxHeight: constraints.maxHeight * 2,
+                // maxHeight:
+                //     (context.findRenderObject() as RenderBox).size.height * 200,
               ),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-          ListView(
-            children: <Widget>[
-              for (int i = 0; i < controllers.length; i++)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 10, 0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: controllers[i],
-                          decoration: InputDecoration(
-                            labelText: 'Input Field ${i + 1}',
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.remove_circle_outline_rounded,
-                          color: Colors.red,
-                        ),
-                        onPressed: () {
-                          if (controllers.length > 1) {
-                            _removeTextField(i);
-                          } else {
-                            showErrorDialog(
-                                context, 'Form field should be more than one');
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              const SizedBox(height: 30.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: SizedBox(
-                  height: 55,
-                  child: ElevatedButton(
-                    onPressed: _addTextField,
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 31, 31, 31),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20))),
-                    child: const Text(
-                      'Add Field',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width - 5,
+                    child: InteractiveViewer(
+                      panEnabled: false,
+                      minScale: 2,
+                      maxScale: 100,
+                      boundaryMargin: const EdgeInsets.all(double.infinity),
+                      child: Image.file(
+                        File(widget.path),
                       ),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 50),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Text(
+                      "Please enter the form labels in the following text fields.",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: controllers.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 10, 0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: controllers[index],
+                                decoration: InputDecoration(
+                                  labelText: 'Input Field ${index + 1}',
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.remove_circle_outline_rounded,
+                                color: Colors.red,
+                              ),
+                              onPressed: () {
+                                if (controllers.length > 1) {
+                                  _removeTextField(index);
+                                } else {
+                                  showErrorDialog(context,
+                                      'Form field should be more than one');
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 30.0),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Center(
+                      child: SizedBox(
+                        height: 55,
+                        width: MediaQuery.of(context).size.width - 5,
+                        child: ElevatedButton(
+                          onPressed: _addTextField,
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 31, 31, 31),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20))),
+                          child: const Text(
+                            'Add Field',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          Visibility(
-            visible: _generatedText != null,
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              child: TextField(
-                controller: _generatedTextController,
-                maxLines: null,
-                style: const TextStyle(
-                  fontSize: 22,
-                ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-          ),
-        ],
+            );
+          }),
+        ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   backgroundColor: Theme.of(context).brightness == Brightness.light
-      //       ? Colors.black
-      //       : Colors.grey.shade800,
-      //   child: const Icon(
-      //     Icons.add,
-      //     color: Colors.white,
-      //   ),
-      //   onPressed: () {},
-      // ),
     );
   }
 }

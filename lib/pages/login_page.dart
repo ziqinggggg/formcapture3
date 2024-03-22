@@ -37,7 +37,7 @@ class _LogInPageState extends State<LogInPage> {
     bool lightTheme = Theme.of(context).brightness == Brightness.light;
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) async {
-        if (state is AuthStateLSignedOut) {
+        if (state is AuthStateSignedOut) {
           // final closeDialog = _closeDialogHandle;
           // if (!state.isLoading && closeDialog != null) {
           //   closeDialog();
@@ -135,7 +135,7 @@ class _LogInPageState extends State<LogInPage> {
                   ),
                   Container(
                     height: 50,
-                    margin: const EdgeInsets.only(bottom: 15),
+                    margin: const EdgeInsets.only(bottom: 0),
                     decoration: const BoxDecoration(
                       border: Border(
                         bottom: BorderSide(color: Colors.grey),
@@ -177,84 +177,103 @@ class _LogInPageState extends State<LogInPage> {
                       ),
                     ),
                   ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        context.read<AuthBloc>().add(
+                              const AuthEventForgotPassword(),
+                            );
+                      },
+                      child: const Text(
+                        'Forgot Password?',
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   SizedBox(
                     width: double.infinity,
                     height: 55,
                     child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 31, 31, 31),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20))),
-                        onPressed: () async {
-                          final email = _email.text;
-                          final password = _password.text;
-                          context
-                              .read<AuthBloc>()
-                              .add(AuthEventLogIn(email, password));
-                        },
-                        child: const Text(
-                          'Login',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                          ),
-                        )),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromARGB(255, 31, 31, 31),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20))),
+                      onPressed: () async {
+                        final email = _email.text;
+                        final password = _password.text;
+                        context
+                            .read<AuthBloc>()
+                            .add(AuthEventLogIn(email, password));
+                      },
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(
                     height: 20,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Expanded(
-                        child: Divider(
-                          color: lightTheme
-                              ? Colors.grey.shade400
-                              : Colors.grey.shade700,
-                          thickness: 1,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Text(
-                          'OR',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: lightTheme
-                                ? Colors.grey.shade400
-                                : Colors.grey.shade700,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Divider(
-                          color: lightTheme
-                              ? Colors.grey.shade400
-                              : Colors.grey.shade700,
-                          thickness: 1,
-                        ),
-                      ),
-                    ],
-                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: <Widget>[
+                  //     Expanded(
+                  //       child: Divider(
+                  //         color: lightTheme
+                  //             ? Colors.grey.shade400
+                  //             : Colors.grey.shade700,
+                  //         thickness: 1,
+                  //       ),
+                  //     ),
+                  //     Padding(
+                  //       padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  //       child: Text(
+                  //         'OR',
+                  //         style: TextStyle(
+                  //           fontSize: 16,
+                  //           fontWeight: FontWeight.bold,
+                  //           color: lightTheme
+                  //               ? Colors.grey.shade400
+                  //               : Colors.grey.shade700,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //     Expanded(
+                  //       child: Divider(
+                  //         color: lightTheme
+                  //             ? Colors.grey.shade400
+                  //             : Colors.grey.shade700,
+                  //         thickness: 1,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                   const SizedBox(
                     height: 20,
                   ),
-                  Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(20)),
-                      child: ListTile(
-                        leading: Image.asset(
-                          'assets/images/google.png',
-                          height: 25,
-                        ),
-                        title: const Text('Continue with Google',
-                            style: TextStyle(fontSize: 16)),
-                      )),
+                  // Container(
+                  //   decoration: BoxDecoration(
+                  //       border: Border.all(color: Colors.grey),
+                  //       borderRadius: BorderRadius.circular(20)),
+                  //   child: ListTile(
+                  //     leading: Image.asset(
+                  //       'assets/images/google.png',
+                  //       height: 25,
+                  //     ),
+                  //     title: const Text('Continue with Google',
+                  //         style: TextStyle(fontSize: 16)),
+                  //   ),
+                  // ),
                   const SizedBox(
-                    height: 105,
+                    height: 140,
                   ),
                   TextButton(
                     onPressed: () {

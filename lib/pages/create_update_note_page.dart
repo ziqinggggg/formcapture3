@@ -1,5 +1,7 @@
 // create_note_page.dart
 
+// ignore_for_file: prefer_interpolation_to_compose_strings, use_build_context_synchronously
+
 import 'package:formcapture/imports.dart';
 import 'dart:developer' as devtools show log;
 import 'package:intl/intl.dart';
@@ -23,7 +25,17 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
   late final TextEditingController _titleController;
   late final TextEditingController _textController;
   late final String createdDate;
-  String? scannedText;
+
+  // String? scannedText;
+  // List<String> fieldNames = [];
+
+  // final _fieldNamesController = StreamController<List<String>>.broadcast();
+  // Stream<List<String>> get fieldNamesStream => _fieldNamesController.stream;
+  // late final StreamController<List<String>> _fieldNamesController;
+
+//! datatable method
+  List<List<TextEditingController>> formDataControllersList = [];
+  List<TextEditingController> formHeaderControllers = [];
 
   @override
   void initState() {
@@ -31,6 +43,7 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
     _notesService = FirebaseCloudStorage();
     _titleController = TextEditingController();
     _textController = TextEditingController();
+    // _fieldNamesController = StreamController();
     super.initState();
   }
 
@@ -45,6 +58,8 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
       documentId: note.documentId,
       title: title,
       text: text,
+      formData: [],
+      formHeader: [],
     );
   }
 
@@ -55,10 +70,13 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
     }
     final title = _titleController.text;
     final text = _textController.text;
+
     await _notesService.updateNote(
       documentId: note.documentId,
       title: title,
       text: text,
+      formData: [],
+      formHeader: [],
     );
   }
 
@@ -74,12 +92,25 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
 
     if (widgetNote != null) {
       _note = widgetNote;
+      createdDate = DateFormat('yyyy/MM/dd HH:mm')
+          .format(widgetNote.createdDate.toDate());
       if (_titleController.text.isEmpty && _textController.text.isEmpty) {
         _titleController.text = widgetNote.title;
         _textController.text = widgetNote.text;
       }
-      createdDate = DateFormat('yyyy/MM/dd HH:mm')
-          .format(widgetNote.createdDate.toDate());
+
+      if (widgetNote.formData.isNotEmpty) {
+        for (var header in widgetNote.formHeader) {
+          formHeaderControllers.add(TextEditingController(text: header));
+        }
+        for (var data in widgetNote.formData) {
+          List<TextEditingController> formDataControllers = [];
+          for (var key in widgetNote.formHeader) {
+            formDataControllers.add(TextEditingController(text: data[key]));
+          }
+          formDataControllersList.add(formDataControllers);
+        }
+      }
 
       return widgetNote;
     }
@@ -112,21 +143,31 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
     final note = _note;
     final title = _titleController.text;
     final text = _textController.text;
+    List formHeader = [];
+    List<Map<String, String>> formData = [];
 
-    if (note != null && (title.isNotEmpty | text.isNotEmpty)) {
-      if (title.isNotEmpty) {
-        await _notesService.updateNote(
-          documentId: note.documentId,
-          title: title,
-          text: text,
-        );
-      } else if (title.isEmpty) {
-        await _notesService.updateNote(
-          documentId: note.documentId,
-          title: 'Untitled',
-          text: text,
-        );
+    if (formHeaderControllers.isNotEmpty) {
+      for (int i = 0; i < formHeaderControllers.length; i++) {
+        formHeader.add(formHeaderControllers[i].text);
       }
+    }
+    if (formDataControllersList.isNotEmpty) {
+      for (var formDataControllers in formDataControllersList) {
+        Map<String, String> formDataMap = {};
+        for (int i = 0; i < formDataControllers.length; i++) {
+          formDataMap[formHeader[i]] = formDataControllers[i].text;
+        }
+        formData.add(formDataMap);
+      }
+    }
+    if (note != null && (title.isNotEmpty | text.isNotEmpty)) {
+      await _notesService.updateNote(
+        documentId: note.documentId,
+        title: title.isNotEmpty ? title : 'Untitled',
+        text: text,
+        formHeader: formHeader,
+        formData: formData,
+      );
     }
   }
 
@@ -150,7 +191,24 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
     _saveNoteIfTextNotEmpty();
     _titleController.dispose();
     _textController.dispose();
+    // _fieldNamesController.close();
+    formHeaderControllers.forEach((controller) => controller.dispose());
+    formDataControllersList.forEach((formDataControllers) {
+      formDataControllers.forEach((controller) => controller.dispose());
+    });
+
     super.dispose();
+  }
+
+  Future<String> selectAndCropImage() async {
+    bool takePhoto = await cameraOrGalleryDialog(context);
+    final String? imagePath;
+    if (takePhoto) {
+      imagePath = await pickImage(context, source: ImageSource.camera);
+    } else {
+      imagePath = await pickImage(context, source: ImageSource.gallery);
+    }
+    return cropImage(context, imagePath);
   }
 
   void insertRecognizedText(String scannedText) async {
@@ -163,15 +221,62 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
     // _saveNote(null);
   }
 
-  Future<String> chooseFromGalleryOrCamera() async {
-    bool takePhoto = await cameraOrGalleryDialog(context);
-    final String? imagePath;
-    if (takePhoto) {
-      imagePath = await pickImage(context, source: ImageSource.camera);
-    } else {
-      imagePath = await pickImage(context, source: ImageSource.gallery);
-    }
-    return cropImage(context, imagePath);
+  String extractFieldValue(List fieldName, String text, int i) {
+    String escapedFieldName = RegExp.escape(fieldName[i]);
+    RegExp regex = RegExp('$escapedFieldName:*\\s*\\n*(.*?)(?=(\\n|\$))',
+        caseSensitive: false);
+    Match? match = regex.firstMatch(text);
+    return match?.group(1)?.trim() ?? '';
+  }
+
+  void showEditDialog(int i) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, setState) {
+            return AlertDialog(
+              title: Text('Edit Data'),
+              content: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    // Display input fields for each column of the row
+                    for (int j = 0; j < formHeaderControllers.length; j++)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: TextField(
+                          controller: formDataControllersList[i][j],
+                          decoration: InputDecoration(
+                            labelText: formHeaderControllers[j].text,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _saveNoteIfTextNotEmpty();
+                    });
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -246,6 +351,7 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
                           Text(
                             'Created: $createdDate',
                             style: TextStyle(
+                              fontSize: 12,
                               color: lightTheme
                                   ? Colors.grey.shade700
                                   : Colors.grey.shade400,
@@ -255,7 +361,9 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
                             controller: _titleController,
                             maxLines: null,
                             style: const TextStyle(
-                                fontSize: 30, fontWeight: FontWeight.bold),
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                            ),
                             decoration: const InputDecoration(
                               hintText: 'Title',
                               hintStyle: TextStyle(
@@ -271,7 +379,7 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
                             keyboardType: TextInputType.multiline,
                             maxLines: null,
                             style: const TextStyle(
-                              fontSize: 22,
+                              fontSize: 18,
                             ),
                             decoration: const InputDecoration(
                               hintText: 'Body', //todo: add hint text font
@@ -279,6 +387,162 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
                             ),
                             // onChanged: _saveNote,
                           ),
+
+                          // StreamBuilder(
+                          //   stream: _fieldNamesController.stream,
+                          //   builder: (context, snapshot) {
+                          //     if (snapshot.hasData) {
+                          //       devtools.log('snapshot has data!!!');
+                          //       final fieldNames =
+                          //           snapshot.data as List<String>;
+                          // devtools
+                          //     .log('fieldNames' + fieldNames.toString());
+                          Visibility(
+                            //!DataTable
+                            visible: formHeaderControllers.isNotEmpty,
+                            child: formHeaderControllers.isNotEmpty
+                                ? SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: DataTable(
+                                      border: const TableBorder(
+                                        verticalInside: BorderSide(
+                                          width: 1,
+                                          style: BorderStyle.solid,
+                                        ),
+                                      ),
+                                      columns: <DataColumn>[
+                                        for (int i = 0;
+                                            i < formHeaderControllers.length;
+                                            i++)
+                                          DataColumn(
+                                            label: Expanded(
+                                              child: TextField(
+                                                controller:
+                                                    formHeaderControllers[i],
+                                                textAlign: TextAlign.center,
+                                                keyboardType:
+                                                    TextInputType.multiline,
+                                                maxLines: null,
+                                                decoration:
+                                                    const InputDecoration(
+                                                  border: InputBorder.none,
+                                                ),
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        const DataColumn(
+                                          label: Text(''),
+                                        ),
+                                      ],
+                                      rows: <DataRow>[
+                                        for (int i = 0;
+                                            i < formDataControllersList.length;
+                                            i++)
+                                          DataRow(
+                                            onLongPress: () {},
+                                            cells: <DataCell>[
+                                              for (int j = 0;
+                                                  j <
+                                                      formHeaderControllers
+                                                          .length;
+                                                  j++)
+                                                DataCell(
+                                                  TextField(
+                                                    controller:
+                                                        formDataControllersList[
+                                                            i][j],
+                                                    // keyboardType:
+                                                    //     TextInputType.multiline,
+                                                    maxLines: null,
+                                                    decoration: InputDecoration(
+                                                      border: InputBorder.none,
+                                                      suffixIcon: j ==
+                                                              formHeaderControllers
+                                                                      .length -
+                                                                  1
+                                                          ? IconButton(
+                                                              icon: Icon(
+                                                                Icons
+                                                                    .delete_outline_rounded,
+                                                                size: 18,
+                                                                color: Colors
+                                                                    .red
+                                                                    .shade700,
+                                                              ),
+                                                              onPressed:
+                                                                  () async {
+                                                                bool
+                                                                    shoulddelete =
+                                                                    await showDeleteConfirmationDialog(
+                                                                        context);
+                                                                if (shoulddelete) {
+                                                                  setState(() {
+                                                                    formDataControllersList
+                                                                        .removeAt(
+                                                                            i);
+                                                                  });
+                                                                }
+                                                              },
+                                                            )
+                                                          : null,
+
+                                                    ),
+                                                  ),
+                                                ),
+                                              DataCell(
+                                                Row(
+                                                  children: [
+                                                    IconButton(
+                                                      icon: const Icon(
+                                                        Icons.edit_outlined,
+                                                        size: 18,
+                                                      ),
+                                                      onPressed: () async {
+                                                        showEditDialog(i);
+                                                      },
+                                                    ),
+                                                    IconButton(
+                                                      icon: Icon(
+                                                        Icons
+                                                            .delete_outline_rounded,
+                                                        size: 18,
+                                                        color:
+                                                            Colors.red.shade700,
+                                                      ),
+                                                      onPressed: () async {
+                                                        bool shoulddelete =
+                                                            await showDeleteConfirmationDialog(
+                                                                context);
+                                                        if (shoulddelete) {
+                                                          setState(() {
+                                                            formDataControllersList
+                                                                .removeAt(i);
+                                                          });
+                                                        }
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                      ],
+                                    ),
+                                  )
+                                : Container(),
+                          ),
+                          //     } else if (snapshot.hasError) {
+                          //       devtools.log('Error: ${snapshot.error}');
+                          //       return Text('Error: ${snapshot.error}');
+                          //     } else {
+                          //       devtools.log('No data available');
+                          //       return Container();
+                          //     }
+                          //   },
+                          // ),
                         ],
                       ),
                     ),
@@ -287,7 +551,7 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
               );
 
             default:
-              return const CircularProgressIndicator();
+              return const Center(child: CircularProgressIndicator());
           }
         },
       ),
@@ -315,20 +579,51 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
                     title: Text('Scan Form')),
               ),
             ],
-          ).then((value) async {
-            if (value == 'scanText') {
-              final selectedImagePath = await chooseFromGalleryOrCamera();
-              scannedText = await scanImage(context, selectedImagePath);
-              insertRecognizedText(scannedText!);
-            } else if (value == 'scanForm') {
-              final selectedImagePath = await chooseFromGalleryOrCamera();
-              scannedText = await scanImage(context, selectedImagePath);
-              Navigator.of(context).pushNamed(
-                                  '/forminput/',
-                                  arguments: scannedText,
-                                );
-            }
-          });
+          ).then(
+            (value) async {
+              if (value == 'scanText') {
+                final selectedImagePath = await selectAndCropImage();
+                String? scannedText =
+                    await scanImage(context, selectedImagePath);
+                insertRecognizedText(scannedText!);
+              } else if (value == 'scanForm') {
+                final selectedImagePath = await selectAndCropImage();
+
+                String? scannedText =
+                    await scanImage(context, selectedImagePath);
+
+                if (selectedImagePath.isNotEmpty) {
+                  List fieldNames = [];
+                  if (formHeaderControllers.isEmpty) {
+                    fieldNames = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              InputForm(path: selectedImagePath)),
+                    );
+                    formHeaderControllers.addAll(
+                      fieldNames
+                          .map((text) => TextEditingController(text: text)),
+                    );
+                  } else {
+                    fieldNames = formHeaderControllers
+                        .map((controller) => controller.text)
+                        .toList();
+                  }
+                  List<TextEditingController> formDataControllers = [];
+                  setState(() {
+                    for (int i = 0; i < formHeaderControllers.length; i++) {
+                      String extractedText =
+                          extractFieldValue(fieldNames, scannedText!, i);
+                      formDataControllers
+                          .add(TextEditingController(text: extractedText));
+                    }
+                    formDataControllersList.add(formDataControllers);
+                  });
+                }
+              }
+            },
+          );
         },
       ),
     );

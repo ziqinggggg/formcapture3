@@ -129,6 +129,8 @@ class _NotesPageState extends State<NotesPage> {
               case ConnectionState.waiting:
               case ConnectionState.active:
                 if (snapshot.hasData) {
+                  // LoadingScreen().hide();
+
                   final allNotes = snapshot.data as Iterable<CloudNote>;
                   if (allNotes.isNotEmpty) {
                     return SafeArea(
@@ -171,7 +173,7 @@ class _NotesPageState extends State<NotesPage> {
                             const Text(
                               "Your notes collection is empty. Start by tapping the '+' button to create one.",
                               style:
-                                  TextStyle(fontSize: 23, color: Colors.grey),
+                                  TextStyle(fontSize: 22, color: Colors.grey),
                               textAlign: TextAlign.center,
                             ),
                             Padding(
@@ -187,11 +189,13 @@ class _NotesPageState extends State<NotesPage> {
                     );
                   }
                 } else {
-                  return const CircularProgressIndicator();
+                  // LoadingScreen().show(context: context, text: 'Loading...');
+                  // return Container();
+                  return const Center(child: CircularProgressIndicator());
                 }
 
               default:
-                return const CircularProgressIndicator();
+                return const Center(child: CircularProgressIndicator());
             }
           }),
       floatingActionButton: FloatingActionButton(
@@ -330,7 +334,7 @@ class NotePreview extends StatelessWidget {
                             style: const TextStyle(
                               color: Color.fromARGB(255, 121, 121, 121),
                               fontFamily: 'inter',
-                              fontSize: 16,
+                              // fontSize: 16,
                             ),
                           ),
                         ),

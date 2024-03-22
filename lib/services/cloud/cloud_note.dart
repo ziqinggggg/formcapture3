@@ -8,6 +8,8 @@ class CloudNote {
   final String text;
   final Timestamp createdDate;
   final Timestamp modifiedDate;
+  final dynamic formData;
+  final dynamic formHeader;
 
   const CloudNote({
     required this.documentId,
@@ -16,6 +18,8 @@ class CloudNote {
     required this.text,
     required this.createdDate,
     required this.modifiedDate,
+    required this.formData,
+    required this.formHeader,
   });
 
   CloudNote.fromSnapshot(QueryDocumentSnapshot<Map<String, dynamic>> snapshot)
@@ -24,5 +28,7 @@ class CloudNote {
         title = snapshot.data()[titleFieldName] as String,
         text = snapshot.data()[textFieldName] as String,
         createdDate = snapshot.data()[createdDateFieldName] as Timestamp,
-        modifiedDate = snapshot.data()[modifiedDateFieldName] as Timestamp;
+        modifiedDate = snapshot.data()[modifiedDateFieldName] as Timestamp,
+        formData = snapshot.data()[formDataFieldName] as dynamic,
+        formHeader = snapshot.data()[formHeaderFieldName] as dynamic;
 }
