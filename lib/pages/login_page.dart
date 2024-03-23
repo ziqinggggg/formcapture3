@@ -1,7 +1,6 @@
 // login_page.dart
 
 import 'package:formcapture/imports.dart';
-import 'dart:developer' as devtools show log;
 
 class LogInPage extends StatefulWidget {
   const LogInPage({super.key});
@@ -47,10 +46,9 @@ class _LogInPageState extends State<LogInPage> {
           //       showLoadingDialog(context: context, text: 'Loading...');
           // }
 
-          if (state.exception is UserNotFoundAuthException) {
+          if (state.exception is UserNotFoundAuthException ||
+              state.exception is WrongPasswordAuthException) {
             await showErrorDialog(context, 'User not found.');
-          } else if (state.exception is WrongPasswordAuthException) {
-            await showErrorDialog(context, 'Wrong credentials');
           } else if (state.exception is GenericAuthException) {
             await showErrorDialog(context, 'Authentication error');
           }
@@ -214,7 +212,7 @@ class _LogInPageState extends State<LogInPage> {
                         'Login',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 20,
+                          fontSize: 16,
                         ),
                       ),
                     ),

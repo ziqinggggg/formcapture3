@@ -1,5 +1,4 @@
 import 'package:formcapture/imports.dart';
-import 'dart:developer' as devtools show log;
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});

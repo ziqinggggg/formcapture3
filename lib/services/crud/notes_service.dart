@@ -9,7 +9,6 @@
 // import 'package:sqflite/sqflite.dart';
 // import 'package:path_provider/path_provider.dart';
 // import 'package:path/path.dart' show join;
-// import 'dart:developer' as devtools show log;
 
 // class NotesService {
 //   Database? _db;
@@ -160,7 +159,7 @@
 //       _notes.removeWhere((note) => note.id == id);
 //       _notesStreamController.add(_notes);
 //     }
-//     devtools.log("delete notes");
+//     log("delete notes");
 //     printNoteTable();
 //   }
 
@@ -235,14 +234,14 @@
 
 //     final List<Map<String, dynamic>> rowsUser = await db.query(userTable);
 //     for (var row in rowsUser) {
-//       devtools.log(row.toString());
+//       log(row.toString());
 //     }
 
 //     // Retrieve all rows from the note table
 //     final List<Map<String, dynamic>> rowsNote = await db.query(noteTable);
 //     // Print each row
 //     for (var row in rowsNote) {
-//       devtools.log(row.toString());
+//       log(row.toString());
 //     }
 //   }
 

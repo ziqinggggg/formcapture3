@@ -1,4 +1,3 @@
-import 'dart:developer' as devtools show log;
 import 'package:formcapture/imports.dart';
 
 Future<String> cropImage(BuildContext context, String path) async {

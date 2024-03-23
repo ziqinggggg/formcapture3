@@ -97,7 +97,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         const AuthStateSignedOut(
           exception: null,
           isLoading: true,
-          // loadingText: 'Please wait while we log you in',
         ),
       );
       final email = event.email;

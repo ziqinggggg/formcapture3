@@ -4,7 +4,6 @@
 // import 'package:camera/camera.dart';
 // import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 // import 'package:permission_handler/permission_handler.dart';
-// import 'dart:developer' as devtools show log;
 
 // class Scaner extends StatefulWidget {
 //   const Scaner({super.key});
@@ -190,8 +189,8 @@
 //       //           CreateUpdateNote(recognizedText: recognizedText.text)),
 //       // );
 //     } catch (e) {
-//       devtools.log('An error occurred when scanning text');
-//       devtools.log(e.toString());
+//       log('An error occurred when scanning text');
+//       log(e.toString());
 //       showErrorDialog(context, "An error occurred when scanning text");
 //       // ScaffoldMessenger.of(context).showSnackBar(
 //       //   const SnackBar(

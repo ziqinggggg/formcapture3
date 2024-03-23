@@ -70,7 +70,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                     child: Text(
                         "We've sent you an email verification. Please check to verify your account.",
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                         ),
                         textAlign: TextAlign.center),
                   ),

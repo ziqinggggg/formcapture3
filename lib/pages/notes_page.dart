@@ -2,7 +2,6 @@
 
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:formcapture/imports.dart';
-import 'dart:developer' as devtools show log;
 
 import 'package:intl/intl.dart';
 
@@ -52,7 +51,7 @@ class _NotesPageState extends State<NotesPage> {
       appBar: AppBar(
         title: Text(
           username,
-          style: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
         ),
         actions: [
           PopupMenuButton<String>(
@@ -277,14 +276,38 @@ class NotePreview extends StatelessWidget {
                       //   try {
                       //     await _notesService.deleteNote(id: widget.noteId);
                       //   } catch (e) {
-                      //     devtools.log("$e");
+                      //     log("$e");
                       //   }
                       // }),
                       children: [
                         SlidableAction(
-                          onPressed: (BuildContext context) async {
-                            Share.share(
-                                'Title: ' + note.title + '\n' + note.text);
+                          onPressed: (context) async {
+                            if (note.formData.isNotEmpty) {
+                              List<Map<String, String>> formData = [];
+                              List<String> formHeader = [];
+                              for (var header in note.formHeader) {
+                                formHeader.add(header);
+                              }
+                              for (var data in note.formData) {
+                                Map<String, String> formDataMap = {};
+                                for (var key in note.formHeader) {
+                                  formDataMap[key] = data[key] ?? '';
+                                }
+                                formData.add(formDataMap);
+                              }
+                              showShareDialog(
+                                context,
+                                note.title,
+                                note.text,
+                                formData,
+                              );
+                            } else {
+                              Share.share(
+                                  'Title: ' + note.title + '\n' + note.text);
+                            }
+
+                            // Share.share(
+                            //     'Title: ' + note.title + '\n' + note.text);
                           },
                           backgroundColor: const Color(0xFF21B7CA),
                           foregroundColor: Colors.white,
@@ -300,7 +323,7 @@ class NotePreview extends StatelessWidget {
                                 onDelete(note);
                               } else {}
                             } catch (e) {
-                              devtools.log("$e");
+                              log("$e");
                             }
                           },
                           backgroundColor: const Color(0xFFFE4A49),
@@ -316,7 +339,9 @@ class NotePreview extends StatelessWidget {
                           title: Text(
                             note.title.trim(),
                             style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 20),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
                           ),
                           subtitle: Text(
                             maxLines: 2,
@@ -333,7 +358,6 @@ class NotePreview extends StatelessWidget {
 
                             style: const TextStyle(
                               color: Color.fromARGB(255, 121, 121, 121),
-                              fontFamily: 'inter',
                               // fontSize: 16,
                             ),
                           ),

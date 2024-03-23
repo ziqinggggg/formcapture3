@@ -1,27 +1,5 @@
 import 'package:formcapture/imports.dart';
 
-// class ErrorDialog {
-//   static void showErrorDialog(BuildContext context, String errorMessage) {
-//     showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           title: const Text('Error'),
-//           content: Text(errorMessage, style: const TextStyle(fontSize: 16)),
-//           actions: <Widget>[
-//             TextButton(
-//               onPressed: () {
-//                 Navigator.pop(context);
-//               },
-//               child: const Text('OK'),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-// }
-
 Future<bool> showAlertDialog(BuildContext context, String message) {
   return showGenericDialog<bool>(
     context: context,
@@ -95,9 +73,69 @@ Future<void> showResetPasswordSentDialog(BuildContext context) {
   return showGenericDialog<bool>(
     context: context,
     title: 'Reset Password',
-    content: "We've sent a reset password link to your account, please check your email for more information.",
+    content:
+        "We've sent a reset password link to your account, please check your email for more information.",
     optionsBuilder: () => {
       'OK': null,
+    },
+  );
+}
+
+Future<void> showShareDialog(BuildContext context, String title, String text,
+    List<Map<String, String>> formData) {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (BuildContext context, setState) {
+          return AlertDialog(
+            title: const Text('Share'),
+            content: SingleChildScrollView(
+              child: Container(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            Share.share('Title: ' +
+                                title +
+                                '\n' +
+                                text +
+                                '\nForm Data: \n' +
+                                formData.toString());
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Share as text')),
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            shareAsPdf(title, text, formData);
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Share as pdf')),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            shareToExcel(title, text, formData);
+                            // shareListToExcel(title, text, formData); //!!!!!!!!!!!!!
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Share as .xlsx')),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
     },
   );
 }

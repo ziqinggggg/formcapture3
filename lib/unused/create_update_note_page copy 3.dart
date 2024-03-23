@@ -4,7 +4,6 @@
 // // ignore_for_file: prefer_interpolation_to_compose_strings
 
 // import 'package:formcapture/imports.dart';
-// import 'dart:developer' as devtools show log;
 // import 'package:intl/intl.dart';
 
 // class CreateUpdateNote extends StatefulWidget {
@@ -78,11 +77,11 @@
 //     // cols = generateCols(fieldNames);
 //     // //!2
 //     // headers = convertToExpandableColumns(fieldNames);
-//     // devtools.log('headers       $headers');
+//     // log('headers       $headers');
 
-//     // devtools.log('fieldNames.toString()$fieldNames');
+//     // log('fieldNames.toString()$fieldNames');
 //     // _fieldNamesController.add(fieldNames!);
-//     // devtools.log('_fieldNamesController.toString()$_fieldNamesController');
+//     // log('_fieldNamesController.toString()$_fieldNamesController');
 
 //     super.initState();
 //   }
@@ -124,7 +123,7 @@
 //     for (String fieldName in fieldNames) {
 //       cols.add({"title": fieldName, 'key': fieldName});
 //     }
-//     devtools.log('cols.toString()' + cols.toString());
+//     log('cols.toString()' + cols.toString());
 //     return cols;
 //   }
 
@@ -229,12 +228,12 @@
 //       for (int i = 0; i < formHeaderControllers.length; i++) {
 //         formHeader.add(formHeaderControllers[i].text);
 //       }
-//       devtools.log('1');
+//       log('1');
 //     }
-//     devtools.log('formDataControllersList.toString()       ' +
+//     log('formDataControllersList.toString()       ' +
 //         formDataControllersList.toString());
 //     if (formDataControllersList.isNotEmpty) {
-//       devtools.log('2');
+//       log('2');
 //       for (var formDataControllers in formDataControllersList) {
 //         Map<String, String> formDataMap = {};
 //         // Iterate over each TextEditingController in the list
@@ -244,10 +243,10 @@
 //         }
 //         // Add the map to the formData list
 //         formData.add(formDataMap);
-//         devtools.log('formData.toString()       ' + formData.toString());
+//         log('formData.toString()       ' + formData.toString());
 //       }
 //     }
-//     devtools.log('5');
+//     log('5');
 //     if (note != null && (title.isNotEmpty | text.isNotEmpty)) {
 //       await _notesService.updateNote(
 //         documentId: note.documentId,
@@ -256,7 +255,7 @@
 //         formHeader: formHeader,
 //         formData: formData,
 //       );
-//       devtools.log('6');
+//       log('6');
 //     }
 //   }
 
@@ -270,7 +269,7 @@
 //   //     title: title,
 //   //     text: text,
 //   //   );
-//   //   devtools.log('note updated');
+//   //   log('note updated');
 //   // }
 //   // }
 
@@ -418,10 +417,9 @@
 //                           //   stream: _fieldNamesController.stream,
 //                           //   builder: (context, snapshot) {
 //                           //     if (snapshot.hasData) {
-//                           //       devtools.log('snapshot has data!!!');
+//                           //       log('snapshot has data!!!');
 //                           //       final fieldNames =
 //                           //           snapshot.data as List<String>;
-//                           // devtools
 //                           //     .log('fieldNames' + fieldNames.toString());
 //                           Visibility(
 //                             //!DataTable
@@ -695,10 +693,10 @@
 //                           // ),
 
 //                           //     } else if (snapshot.hasError) {
-//                           //       devtools.log('Error: ${snapshot.error}');
+//                           //       log('Error: ${snapshot.error}');
 //                           //       return Text('Error: ${snapshot.error}');
 //                           //     } else {
-//                           //       devtools.log('No data available');
+//                           //       log('No data available');
 //                           //       return Container();
 //                           //     }
 //                           //   },
@@ -771,12 +769,12 @@
 //                   'Email',
 //                   'Desired salary'
 //                 ];
-//                 // devtools.log('fieldNames.toString()$fieldNames');
+//                 // log('fieldNames.toString()$fieldNames');
 //                 // for (int i = 0; i < fieldNames!.length; i++) {
 //                 //   _fieldNamesController.add([fieldNames![i]]);
 //                 // }
 
-//                 // devtools.log(
+//                 // log(
 //                 //     '_fieldNamesController.toString()$_fieldNamesController'); // how to print the values stored here???
 //               }
 //             },
@@ -816,7 +814,7 @@
 
 // //   @override
 // //   Widget build(BuildContext context) {
-// //     devtools.log('666666');
+// //     log('666666');
 // //     return
 // //     Container(
 // //       child: DataTable(
@@ -857,7 +855,7 @@
 //     String? generatedFieldInput = extractFieldValue(fieldname, scannedtext, i);
 //     currentFormData[fieldname[i]] = generatedFieldInput ?? '';
 //   }
-//   // devtools.log('addCells currentFormData' + currentFormData.toString());
+//   // log('addCells currentFormData' + currentFormData.toString());
 
 //   // List<DataCell> cells = currentFormData.values
 //   //     .map<DataCell>((value) => DataCell(Text(value)))
@@ -889,7 +887,7 @@
 //   }
 
 //   formData.add(currentFormData);
-//   // devtools.log('addRows formData' + formData.toString());
+//   // log('addRows formData' + formData.toString());
 
 //   return formData;
 // }
@@ -906,7 +904,7 @@
 // //     return DataRow(cells: cells);
 // //   }).toList();
 
-// //   devtools.log('mapped' + mapped.toString());
+// //   log('mapped' + mapped.toString());
 
 // //   // final mapped = formData.map(
 // //   //   (data) {
@@ -952,7 +950,7 @@
 
 // //   @override
 // //   Widget build(BuildContext context) {
-// //     devtools.log('666666');
+// //     log('666666');
 // //     return Container(
 // //       child: DataTable(
 // //         columns: [

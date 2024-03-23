@@ -1,5 +1,4 @@
 import 'package:formcapture/imports.dart';
-import 'dart:developer' as devtools show log;
 
 // sigleton
 class FirebaseCloudStorage {
@@ -17,7 +16,7 @@ class FirebaseCloudStorage {
     required String documentId,
     required String title,
     required String text,
-    required List<Map<String, dynamic>?>? formData,
+    required List<Map<String, String>?>? formData,
     required List formHeader,
   }) async {
     try {

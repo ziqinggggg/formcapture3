@@ -1,5 +1,4 @@
 import 'package:formcapture/imports.dart';
-import 'dart:developer' as devtools show log;
 
 class InputForm extends StatefulWidget {
   final dynamic path;
@@ -48,8 +47,8 @@ class _InputFormState extends State<InputForm> {
   }
 
   List<String> generateFormInfo() {
-    // devtools.log('_scannedTextController.text' + _textController.text);
-    // devtools.log('controllers' + controllers.toString());
+    // log('_scannedTextController.text' + _textController.text);
+    // log('controllers' + controllers.toString());
 
     for (int i = 0; i < controllers.length; i++) {
       if (controllers[i].text.isNotEmpty) {
@@ -67,7 +66,7 @@ class _InputFormState extends State<InputForm> {
         title: const Text(
           'Form',
           style: TextStyle(
-            fontSize: 35,
+            fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -116,7 +115,7 @@ class _InputFormState extends State<InputForm> {
                     child: Text(
                       "Please enter the form labels in the following text fields.",
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

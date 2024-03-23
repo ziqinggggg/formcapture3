@@ -1,5 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:formcapture/firebase_options.dart';
+import 'package:formcapture/services/firebase_options.dart';
 import 'package:formcapture/imports.dart';
 
 import 'package:firebase_auth/firebase_auth.dart'
