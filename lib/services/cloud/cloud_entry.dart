@@ -1,7 +1,7 @@
 import 'package:formcapture/imports.dart';
 
 @immutable
-class CloudNote {
+class CloudEntry {
   final String documentId;
   final String ownerUserId;
   final String title;
@@ -11,7 +11,7 @@ class CloudNote {
   final dynamic formData;
   final dynamic formHeader;
 
-  const CloudNote({
+  const CloudEntry({
     required this.documentId,
     required this.ownerUserId,
     required this.title,
@@ -22,7 +22,7 @@ class CloudNote {
     required this.formHeader,
   });
 
-  CloudNote.fromSnapshot(QueryDocumentSnapshot<Map<String, dynamic>> snapshot)
+  CloudEntry.fromSnapshot(QueryDocumentSnapshot<Map<String, dynamic>> snapshot)
       : documentId = snapshot.id,
         ownerUserId = snapshot.data()[ownerUserIdFieldName],
         title = snapshot.data()[titleFieldName] as String,

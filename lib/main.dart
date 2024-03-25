@@ -38,7 +38,7 @@ Future<void> main() async {
           child: HomePage(),
         ),
         routes: {
-          '/createnote/': (context) => const CreateUpdateNote(),
+          '/createentry/': (context) => const CreateUpdateEntry(),
         },
       ),
     ),
@@ -63,7 +63,7 @@ class HomePage extends StatelessWidget {
       },
       builder: (context, state) {
         if (state is AuthStateLoggedIn) {
-          return const NotesPage();
+          return const EntriesPage();
         } else if (state is AuthStateNeedsVerification) {
           return const VerifyEmailPage();
         } else if (state is AuthStateSignedOut) {

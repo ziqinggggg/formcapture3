@@ -1,20 +1,20 @@
-// notes_page.dart
+// entries_page.dart
 
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:formcapture/imports.dart';
 
 import 'package:intl/intl.dart';
 
-class NotesPage extends StatefulWidget {
-  const NotesPage({super.key});
+class EntriesPage extends StatefulWidget {
+  const EntriesPage({super.key});
 
   @override
-  State<NotesPage> createState() => _NotesPageState();
+  State<EntriesPage> createState() => _EntriesPageState();
 }
 
-class _NotesPageState extends State<NotesPage> {
-  late final FirebaseCloudStorage _notesService;
-  // late final NotesService _notesService;
+class _EntriesPageState extends State<EntriesPage> {
+  late final FirebaseCloudStorage _entriesService;
+  // late final EntriesService _entriesService;
   bool sortByCreatedDate = true;
 
   String get userId => AuthService.firebase().currentUser!.id;
@@ -23,8 +23,8 @@ class _NotesPageState extends State<NotesPage> {
 
   @override
   void initState() {
-    _notesService = FirebaseCloudStorage();
-    // _notesService = NotesService();
+    _entriesService = FirebaseCloudStorage();
+    // _entriesService = EntriesService();
     _loadSortingPreference();
     super.initState();
   }
@@ -121,7 +121,7 @@ class _NotesPageState extends State<NotesPage> {
         ],
       ),
       body: StreamBuilder(
-          stream: _notesService.allNotes(
+          stream: _entriesService.allEntries(
               ownerUserId: userId, sortByCreatedDate: sortByCreatedDate),
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
@@ -130,8 +130,8 @@ class _NotesPageState extends State<NotesPage> {
                 if (snapshot.hasData) {
                   // LoadingScreen().hide();
 
-                  final allNotes = snapshot.data as Iterable<CloudNote>;
-                  if (allNotes.isNotEmpty) {
+                  final allEntries = snapshot.data as Iterable<CloudEntry>;
+                  if (allEntries.isNotEmpty) {
                     return SafeArea(
                       bottom: false,
                       child: Padding(
@@ -141,18 +141,18 @@ class _NotesPageState extends State<NotesPage> {
                             const SizedBox(
                               height: 15,
                             ),
-                            NotePreview(
-                              notes: allNotes,
+                            EntryPreview(
+                              entries: allEntries,
                               sortByCreatedDate: sortByCreatedDate,
-                              onTap: (note) {
+                              onTap: (entry) {
                                 Navigator.of(context).pushNamed(
-                                  '/createnote/',
-                                  arguments: note,
+                                  '/createentry/',
+                                  arguments: entry,
                                 );
                               },
-                              onDelete: (note) async {
-                                await _notesService.deleteNote(
-                                    documentId: note.documentId);
+                              onDelete: (entry) async {
+                                await _entriesService.deleteEntry(
+                                    documentId: entry.documentId);
                               },
                             ),
                           ],
@@ -160,30 +160,11 @@ class _NotesPageState extends State<NotesPage> {
                       ),
                     );
                   } else {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                        child: Column(
-                          // mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const SizedBox(
-                              height: 290,
-                            ),
-                            const Text(
-                              "Your notes collection is empty. Start by tapping the '+' button to create one.",
-                              style:
-                                  TextStyle(fontSize: 22, color: Colors.grey),
-                              textAlign: TextAlign.center,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 00),
-                              child: Image.asset(
-                                'assets/images/arrow2.png',
-                                height: 280,
-                              ),
-                            )
-                          ],
-                        ),
+                    return const Center(
+                      child: Text(
+                        "Your entries collection is empty. Start by tapping the '+' button to create one.",
+                        style: TextStyle(fontSize: 18, color: Colors.grey),
+                        textAlign: TextAlign.center,
                       ),
                     );
                   }
@@ -202,9 +183,9 @@ class _NotesPageState extends State<NotesPage> {
         onPressed: () {
           // Navigator.push(
           //   context,
-          //   MaterialPageRoute(builder: (context) => const CreateNote()),
+          //   MaterialPageRoute(builder: (context) => const CreateEntry()),
           // );
-          Navigator.of(context).pushNamed('/createnote/');
+          Navigator.of(context).pushNamed('/createentry/');
         },
         child: Icon(
           Icons.add,
@@ -216,17 +197,17 @@ class _NotesPageState extends State<NotesPage> {
   }
 }
 
-typedef NoteCallBack = void Function(CloudNote note);
+typedef EntryCallBack = void Function(CloudEntry entry);
 
-class NotePreview extends StatelessWidget {
-  final Iterable<CloudNote> notes;
-  final NoteCallBack onTap;
-  final NoteCallBack onDelete;
+class EntryPreview extends StatelessWidget {
+  final Iterable<CloudEntry> entries;
+  final EntryCallBack onTap;
+  final EntryCallBack onDelete;
   final bool sortByCreatedDate;
 
-  const NotePreview({
+  const EntryPreview({
     super.key,
-    required this.notes,
+    required this.entries,
     required this.onTap,
     required this.onDelete,
     required this.sortByCreatedDate,
@@ -254,9 +235,9 @@ class NotePreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: ListView.builder(
-        itemCount: notes.length,
+        itemCount: entries.length,
         itemBuilder: (context, index) {
-          final note = notes.elementAt(index);
+          final entry = entries.elementAt(index);
           return Card(
             elevation: 3,
             margin: const EdgeInsets.symmetric(vertical: 10),
@@ -274,7 +255,7 @@ class NotePreview extends StatelessWidget {
                       motion: const DrawerMotion(),
                       // dismissible: DismissiblePane(onDismissed: () async {
                       //   try {
-                      //     await _notesService.deleteNote(id: widget.noteId);
+                      //     await _entriesService.deleteEntry(id: widget.entryId);
                       //   } catch (e) {
                       //     log("$e");
                       //   }
@@ -282,32 +263,32 @@ class NotePreview extends StatelessWidget {
                       children: [
                         SlidableAction(
                           onPressed: (context) async {
-                            if (note.formData.isNotEmpty) {
+                            if (entry.formHeader.isNotEmpty) {
                               List<Map<String, String>> formData = [];
                               List<String> formHeader = [];
-                              for (var header in note.formHeader) {
+                              for (var header in entry.formHeader) {
                                 formHeader.add(header);
                               }
-                              for (var data in note.formData) {
+                              for (var data in entry.formData) {
                                 Map<String, String> formDataMap = {};
-                                for (var key in note.formHeader) {
+                                for (var key in entry.formHeader) {
                                   formDataMap[key] = data[key] ?? '';
                                 }
                                 formData.add(formDataMap);
                               }
                               showShareDialog(
                                 context,
-                                note.title,
-                                note.text,
+                                entry.title,
+                                entry.text,
                                 formData,
                               );
                             } else {
                               Share.share(
-                                  'Title: ' + note.title + '\n' + note.text);
+                                  'Title: ' + entry.title + '\n' + entry.text);
                             }
 
                             // Share.share(
-                            //     'Title: ' + note.title + '\n' + note.text);
+                            //     'Title: ' + entry.title + '\n' + entry.text);
                           },
                           backgroundColor: const Color(0xFF21B7CA),
                           foregroundColor: Colors.white,
@@ -320,7 +301,7 @@ class NotePreview extends StatelessWidget {
                               bool shoulddelete =
                                   await showDeleteConfirmationDialog(context);
                               if (shoulddelete) {
-                                onDelete(note);
+                                onDelete(entry);
                               } else {}
                             } catch (e) {
                               log("$e");
@@ -337,7 +318,7 @@ class NotePreview extends StatelessWidget {
                       children: [
                         ListTile(
                           title: Text(
-                            note.title.trim(),
+                            entry.title.trim(),
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
@@ -347,14 +328,14 @@ class NotePreview extends StatelessWidget {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             // DateFormat('yyyy/MM/dd HH:mm')
-                            //         .format(note.createdDate.toDate())
+                            //         .format(entry.createdDate.toDate())
                             //         .toString() +
                             // '  ' +
                             getRelativeTime(sortByCreatedDate
-                                    ? note.createdDate.toDate()
-                                    : note.modifiedDate.toDate()) +
+                                    ? entry.createdDate.toDate()
+                                    : entry.modifiedDate.toDate()) +
                                 '  ' +
-                                note.text.trim(),
+                                entry.text.trim(),
 
                             style: const TextStyle(
                               color: Color.fromARGB(255, 121, 121, 121),
@@ -366,9 +347,10 @@ class NotePreview extends StatelessWidget {
                           child: Material(
                             color: Colors.transparent,
                             child: InkWell(
-                              splashColor: Color.fromARGB(71, 169, 169, 169),
+                              splashColor:
+                                  const Color.fromARGB(71, 169, 169, 169),
                               onTap: () {
-                                onTap(note);
+                                onTap(entry);
                               },
                             ),
                           ),

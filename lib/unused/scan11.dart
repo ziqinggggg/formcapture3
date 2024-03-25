@@ -184,9 +184,9 @@
 //       // await navigator.push(
 //       //   MaterialPageRoute(
 //       //       builder: (BuildContext context) =>
-//       //           // NoteDetail(note: recognizedText.text),
+//       //           // EntryDetail(entry: recognizedText.text),
 //       //           // ResultScreen(text: recognizedText.text),
-//       //           CreateUpdateNote(recognizedText: recognizedText.text)),
+//       //           CreateUpdateEntry(recognizedText: recognizedText.text)),
 //       // );
 //     } catch (e) {
 //       log('An error occurred when scanning text');

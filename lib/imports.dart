@@ -2,8 +2,8 @@
 // import 'package:formcapture/imports.dart';
 
 // pages
-export 'package:formcapture/pages/create_update_note_page.dart';
-export 'package:formcapture/pages/notes_page.dart';
+export 'package:formcapture/pages/create_update_entry_page.dart';
+export 'package:formcapture/pages/entries_page.dart';
 export 'package:formcapture/pages/login_page.dart';
 export 'package:formcapture/pages/signup_page.dart';
 export 'package:formcapture/utilities/scan_image.dart';
@@ -54,12 +54,12 @@ export 'package:pdf/pdf.dart';
 // cloud
 export 'package:cloud_firestore/cloud_firestore.dart';
 export 'package:formcapture/services/cloud/cloud_storage_constants.dart';
-export 'package:formcapture/services/cloud/cloud_note.dart';
+export 'package:formcapture/services/cloud/cloud_entry.dart';
 export 'package:formcapture/services/cloud/cloud_storage_exceptions.dart';
 export 'package:formcapture/services/cloud/firebase_cloud_storage.dart';
 
 // database
-// export 'package:formcapture/services/crud/notes_service.dart';
+// export 'package:formcapture/services/crud/entries_service.dart';
 
 // bloc
 export 'package:formcapture/services/auth/bloc/auth_event.dart';

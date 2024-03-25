@@ -2,17 +2,17 @@ import 'package:formcapture/imports.dart';
 
 // sigleton
 class FirebaseCloudStorage {
-  final notes = FirebaseFirestore.instance.collection('notes');
+  final entries = FirebaseFirestore.instance.collection('entries');
 
-  Future<void> deleteNote({required String documentId}) async {
+  Future<void> deleteEntry({required String documentId}) async {
     try {
-      await notes.doc(documentId).delete();
+      await entries.doc(documentId).delete();
     } catch (e) {
-      throw CouldNotDeleteNoteException();
+      throw CouldNotDeleteEntryException();
     }
   }
 
-  Future<void> updateNote({
+  Future<void> updateEntry({
     required String documentId,
     required String title,
     required String text,
@@ -20,7 +20,7 @@ class FirebaseCloudStorage {
     required List formHeader,
   }) async {
     try {
-      await notes.doc(documentId).update({
+      await entries.doc(documentId).update({
         titleFieldName: title,
         textFieldName: text,
         modifiedDateFieldName: Timestamp.fromDate(DateTime.now()),
@@ -28,11 +28,11 @@ class FirebaseCloudStorage {
         formHeaderFieldName: formHeader
       });
     } catch (e) {
-      throw CouldNotUpdateNoteException();
+      throw CouldNotUpdateEntryException();
     }
   }
 
-  Stream<Iterable<CloudNote>> allNotes(
+  Stream<Iterable<CloudEntry>> allEntries(
       {required String ownerUserId, required bool sortByCreatedDate}) {
     var sortingMethod = '';
     if (sortByCreatedDate) {
@@ -41,34 +41,34 @@ class FirebaseCloudStorage {
       sortingMethod = 'modified_date';
     }
 
-    final allNotes = notes
+    final allEntries = entries
         .where(ownerUserIdFieldName, isEqualTo: ownerUserId)
         .orderBy(sortingMethod, descending: true)
         .snapshots()
-        .map((event) => event.docs.map((doc) => CloudNote.fromSnapshot(doc)));
+        .map((event) => event.docs.map((doc) => CloudEntry.fromSnapshot(doc)));
 
-    return allNotes;
+    return allEntries;
   }
 
-  Future<Iterable<CloudNote>> getNotes({required String ownerUserId}) async {
+  Future<Iterable<CloudEntry>> getEntries({required String ownerUserId}) async {
     try {
-      return await notes
+      return await entries
           .where(
             ownerUserIdFieldName,
             isEqualTo: ownerUserId,
           )
           .get()
           .then(
-            (value) => value.docs.map((doc) => CloudNote.fromSnapshot(doc)),
+            (value) => value.docs.map((doc) => CloudEntry.fromSnapshot(doc)),
           );
     } catch (e) {
-      throw CouldNotGetAllNotesException();
+      throw CouldNotGetAllEntriesException();
     }
   }
 
-  Future<CloudNote> createNewNote({required String ownerUserId}) async {
+  Future<CloudEntry> createNewEntry({required String ownerUserId}) async {
     try {
-      final document = await notes.add({
+      final document = await entries.add({
         ownerUserIdFieldName: ownerUserId,
         titleFieldName: '',
         textFieldName: '',
@@ -77,10 +77,10 @@ class FirebaseCloudStorage {
         formDataFieldName: [],
         formHeaderFieldName: [],
       });
-      final fetchedNote = await document.get();
+      final fetchedEntry = await document.get();
 
-      return CloudNote(
-        documentId: fetchedNote.id,
+      return CloudEntry(
+        documentId: fetchedEntry.id,
         ownerUserId: ownerUserId,
         title: '',
         text: '',
@@ -90,7 +90,7 @@ class FirebaseCloudStorage {
         formHeader: [],
       );
     } catch (e) {
-      throw CouldNotCreateNoteException();
+      throw CouldNotCreateEntryException();
     }
   }
 

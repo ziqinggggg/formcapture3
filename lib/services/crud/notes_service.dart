@@ -1,4 +1,4 @@
-// // notes_service.dart
+// // entries_service.dart
 
 // import 'dart:async';
 // import 'package:intl/intl.dart';
@@ -10,33 +10,33 @@
 // import 'package:path_provider/path_provider.dart';
 // import 'package:path/path.dart' show join;
 
-// class NotesService {
+// class EntriesService {
 //   Database? _db;
 
-//   List<DatabaseNote> _notes = [];
+//   List<DatabaseEntry> _entries = [];
 
 //   DatabaseUser? _user;
 
-//   static final NotesService _shared = NotesService._sharedInstance();
-//   NotesService._sharedInstance() {
-//     _notesStreamController = StreamController<List<DatabaseNote>>.broadcast(
+//   static final EntriesService _shared = EntriesService._sharedInstance();
+//   EntriesService._sharedInstance() {
+//     _entriesStreamController = StreamController<List<DatabaseEntry>>.broadcast(
 //       onListen: () {
-//         _notesStreamController.sink.add(_notes);
+//         _entriesStreamController.sink.add(_entries);
 //       },
 //     );
 //   }
-//   factory NotesService() => _shared;
+//   factory EntriesService() => _shared;
 
-//   late final StreamController<List<DatabaseNote>> _notesStreamController;
+//   late final StreamController<List<DatabaseEntry>> _entriesStreamController;
 
 // // filter stream of list of things based on current user
-//   Stream<List<DatabaseNote>> get allNotes =>
-//       _notesStreamController.stream.filter((note) {
+//   Stream<List<DatabaseEntry>> get allEntries =>
+//       _entriesStreamController.stream.filter((entry) {
 //         final currentUser = _user;
 //         if (currentUser != null) {
-//           return note.userId == currentUser.id;
+//           return entry.userId == currentUser.id;
 //         } else {
-//           throw UserShouldBeSetBeforeReadingAllNotes();
+//           throw UserShouldBeSetBeforeReadingAllEntries();
 //         }
 //       });
 
@@ -61,22 +61,22 @@
 //     }
 //   }
 
-//   Future<void> _cacheNotes() async {
-//     final allNotes = await getAllNotes();
-//     _notes = allNotes.toList();
-//     _notesStreamController.add(_notes);
+//   Future<void> _cacheEntries() async {
+//     final allEntries = await getAllEntries();
+//     _entries = allEntries.toList();
+//     _entriesStreamController.add(_entries);
 //   }
 
-//   Future<DatabaseNote> updateNote({
-//     required DatabaseNote note,
+//   Future<DatabaseEntry> updateEntry({
+//     required DatabaseEntry entry,
 //     required String title,
 //     required String text,
 //   }) async {
 //     await _ensureDbIsOpen();
 
 //     final db = _getDatabaseOrThrow();
-//     // make sure note exists
-//     await getNote(id: note.id);
+//     // make sure entry exists
+//     await getEntry(id: entry.id);
 
 //     final currentTime = DateTime.now();
 //     const gmtOffset = Duration(hours: 8); // GMT+08:00
@@ -84,7 +84,7 @@
 
 //     // update DB
 //     final updatesCount = await db.update(
-//       noteTable,
+//       entryTable,
 //       {
 //         titleColumn: title,
 //         textColumn: text,
@@ -92,78 +92,78 @@
 //         modifiedDateColumn: DateFormat('yyyy-MM-dd HH:mm:ss').format(gmtTime)
 //       },
 //       where: 'id = ?',
-//       whereArgs: [note.id],
+//       whereArgs: [entry.id],
 //     );
 
 //     if (updatesCount == 0) {
-//       throw CouldNotUpdateNote();
+//       throw CouldNotUpdateEntry();
 //     } else {
-//       final updatedNote = await getNote(id: note.id);
-//       _notes.removeWhere((note) => note.id == updatedNote.id);
-//       _notes.add(updatedNote);
-//       _notesStreamController.add(_notes);
+//       final updatedEntry = await getEntry(id: entry.id);
+//       _entries.removeWhere((entry) => entry.id == updatedEntry.id);
+//       _entries.add(updatedEntry);
+//       _entriesStreamController.add(_entries);
 
-//       return updatedNote;
+//       return updatedEntry;
 //     }
 //   }
 
-//   Future<Iterable<DatabaseNote>> getAllNotes() async {
+//   Future<Iterable<DatabaseEntry>> getAllEntries() async {
 //     await _ensureDbIsOpen();
 //     final db = _getDatabaseOrThrow();
-//     final notes = await db.query(noteTable);
+//     final entries = await db.query(entryTable);
 
-//     return notes.map((noteRow) => DatabaseNote.fromRow(noteRow));
+//     return entries.map((entryRow) => DatabaseEntry.fromRow(entryRow));
 //   }
 
-//   Future<DatabaseNote> getNote({required int id}) async {
+//   Future<DatabaseEntry> getEntry({required int id}) async {
 //     await _ensureDbIsOpen();
 //     final db = _getDatabaseOrThrow();
-//     final notes = await db.query(
-//       noteTable,
+//     final entries = await db.query(
+//       entryTable,
 //       limit: 1,
 //       where: 'id = ?',
 //       whereArgs: [id],
 //     );
 
-//     if (notes.isEmpty) {
-//       throw CouldNotFindNote();
+//     if (entries.isEmpty) {
+//       throw CouldNotFindEntry();
 //     } else {
-//       final note = DatabaseNote.fromRow(notes.first);
-//       _notes.removeWhere((note) => note.id == id);
-//       _notes.add(note);
-//       _notesStreamController.add(_notes);
-//       return note;
+//       final entry = DatabaseEntry.fromRow(entries.first);
+//       _entries.removeWhere((entry) => entry.id == id);
+//       _entries.add(entry);
+//       _entriesStreamController.add(_entries);
+//       return entry;
 //     }
 //   }
 
-//   Future<int> deleteAllNotes() async {
+//   Future<int> deleteAllEntries() async {
 //     await _ensureDbIsOpen();
 //     final db = _getDatabaseOrThrow();
-//     final numberOfDeletions = await db.delete(noteTable);
-//     _notes = [];
-//     _notesStreamController.add(_notes);
+//     final numberOfDeletions = await db.delete(entryTable);
+//     _entries = [];
+//     _entriesStreamController.add(_entries);
 //     return numberOfDeletions;
 //   }
 
-//   Future<void> deleteNote({required int id}) async {
+//   Future<void> deleteEntry({required int id}) async {
 //     await _ensureDbIsOpen();
 //     final db = _getDatabaseOrThrow();
 //     final deletedCount = await db.delete(
-//       noteTable,
+//       entryTable,
 //       where: 'id = ?',
 //       whereArgs: [id],
 //     );
 //     if (deletedCount == 0) {
-//       throw CouldNotDeleteNote();
+//       throw CouldNotDeleteEntry();
 //     } else {
-//       _notes.removeWhere((note) => note.id == id);
-//       _notesStreamController.add(_notes);
+//       _entries.removeWhere((entry) => entry.id == id);
+//       _entriesStreamController.add(_entries);
 //     }
-//     log("delete notes");
-//     printNoteTable();
+//     log("delete entries");
+//     printEntryTable();
 //   }
 
-//   Future<DatabaseNote> createNote({required DatabaseUser owner}) async {
+//   Future<DatabaseEntry> createEntry({required DatabaseUser owner}) async {
 //     await _ensureDbIsOpen();
 //     final db = _getDatabaseOrThrow();
 
@@ -175,13 +175,13 @@
 
 //     const title = '';
 //     const text = '';
-//     // create the note
+//     // create the entry
 
 //     final currentTime = DateTime.now();
 //     final gmtOffset = Duration(hours: 8); // GMT+08:00
 //     final gmtTime = currentTime.add(gmtOffset);
 
-//     final noteId = await db.insert(noteTable, {
+//     final entryId = await db.insert(entryTable, {
 //       userIdColumn: owner.id,
 //       titleColumn: title,
 //       textColumn: text,
@@ -190,8 +190,8 @@
 //       isSyncedWithCloudColumn: 1,
 //     });
 
-//     final note = DatabaseNote(
-//       id: noteId,
+//     final entry = DatabaseEntry(
+//       id: entryId,
 //       userId: owner.id,
 //       title: title,
 //       text: text,
@@ -200,7 +200,7 @@
 //       isSyncedWithCloud: true,
 //     );
 
-//     // final noteId = await db.insert(noteTable, {
+//     // final entryId = await db.insert(entryTable, {
 //     //   userIdColumn: owner.id,
 //     //   titleColumn: title,
 //     //   textColumn: text,
@@ -209,8 +209,8 @@
 //     //   isSyncedWithCloudColumn: 1,
 //     // });
 
-//     // final note = DatabaseNote(
-//     //   id: noteId,
+//     // final entry = DatabaseEntry(
+//     //   id: entryId,
 //     //   userId: owner.id,
 //     //   title: title,
 //     //   text: text,
@@ -219,15 +219,15 @@
 //     //   isSyncedWithCloud: true,
 //     // );
 
-//     _notes.add(note);
-//     _notesStreamController.add(_notes);
+//     _entries.add(entry);
+//     _entriesStreamController.add(_entries);
 
-//     printNoteTable();
+//     printEntryTable();
 
-//     return note;
+//     return entry;
 //   }
 
-//   Future<void> printNoteTable() async {
+//   Future<void> printEntryTable() async {
 //     // Ensure the database is open
 //     await _ensureDbIsOpen();
 //     final db = _getDatabaseOrThrow();
@@ -237,10 +237,10 @@
 //       log(row.toString());
 //     }
 
-//     // Retrieve all rows from the note table
-//     final List<Map<String, dynamic>> rowsNote = await db.query(noteTable);
+//     // Retrieve all rows from the entry table
+//     final List<Map<String, dynamic>> rowsEntry = await db.query(entryTable);
 //     // Print each row
-//     for (var row in rowsNote) {
+//     for (var row in rowsEntry) {
 //       log(row.toString());
 //     }
 //   }
@@ -337,12 +337,12 @@
 //       _db = db;
 //       // create the user table
 //       await db.execute(createUserTable);
-//       // create note table
-//       await db.execute(createNoteTable);
+//       // create entry table
+//       await db.execute(createEntryTable);
 
-//       await printNoteTable();
+//       await printEntryTable();
 
-//       await _cacheNotes();
+//       await _cacheEntries();
 //     } on MissingPlatformDirectoryException {
 //       throw UnableToGetDocumentsDirectory();
 //     }
@@ -372,7 +372,7 @@
 //   int get hashCode => id.hashCode;
 // }
 
-// class DatabaseNote {
+// class DatabaseEntry {
 //   final int id;
 //   final int userId;
 //   final String title;
@@ -381,7 +381,7 @@
 //   final DateTime modifiedDate;
 //   final bool isSyncedWithCloud;
 
-//   DatabaseNote({
+//   DatabaseEntry({
 //     required this.id,
 //     required this.userId,
 //     required this.title,
@@ -391,7 +391,7 @@
 //     required this.isSyncedWithCloud,
 //   });
 
-//   DatabaseNote.fromRow(Map<String, Object?> map)
+//   DatabaseEntry.fromRow(Map<String, Object?> map)
 //       : id = map[idColumn] as int,
 //         userId = map[userIdColumn] as int,
 //         title = map[titleColumn] as String,
@@ -403,17 +403,17 @@
 
 //   @override
 //   String toString() =>
-//       'Note, ID = $id, userId = $userId, isSyncedWithCloud = $isSyncedWithCloud, title = $title, text = $text, createdDate = $createdDate, modifiedDate = $modifiedDate';
+//       'Entry, ID = $id, userId = $userId, isSyncedWithCloud = $isSyncedWithCloud, title = $title, text = $text, createdDate = $createdDate, modifiedDate = $modifiedDate';
 
 //   @override
-//   bool operator ==(covariant DatabaseNote other) => id == other.id;
+//   bool operator ==(covariant DatabaseEntry other) => id == other.id;
 
 //   @override
 //   int get hashCode => id.hashCode;
 // }
 
-// const dbName = 'notes.db';
-// const noteTable = 'note';
+// const dbName = 'entries.db';
+// const entryTable = 'entry';
 // const userTable = 'user';
 // const idColumn = 'id';
 // const emailColumn = 'email';
@@ -433,8 +433,8 @@
 //       INSERT INTO user 
 //       ("email") VALUES ("ziqing0914@gmail.com")''';
 
-// const createNoteTable = '''
-// CREATE TABLE IF NOT EXISTS "note" (
+// const createEntryTable = '''
+// CREATE TABLE IF NOT EXISTS "entry" (
 //         "id" INTEGER NOT NULL,
 //         "user_id" INTEGER NOT NULL,
 //         "title"	TEXT,
@@ -446,4 +446,4 @@
 //         PRIMARY KEY("id" AUTOINCREMENT)
 //       );''';
 
-// //DROP TABLE IF EXISTS "note";
+// //DROP TABLE IF EXISTS "entry";

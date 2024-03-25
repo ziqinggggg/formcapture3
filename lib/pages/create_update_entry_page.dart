@@ -1,25 +1,22 @@
-// create_note_page.dart
+// create_entry_page.dart
 
 // ignore_for_file: prefer_interpolation_to_compose_strings, use_build_context_synchronously
 
 import 'package:formcapture/imports.dart';
 import 'package:intl/intl.dart';
 
-class CreateUpdateNote extends StatefulWidget {
-  const CreateUpdateNote({
+class CreateUpdateEntry extends StatefulWidget {
+  const CreateUpdateEntry({
     super.key,
   });
 
   @override
-  State<CreateUpdateNote> createState() => _CreateUpdateNoteState();
+  State<CreateUpdateEntry> createState() => _CreateUpdateEntryState();
 }
 
-class _CreateUpdateNoteState extends State<CreateUpdateNote> {
-  // DatabaseNote? _note;
-  // late final NotesService _notesService;
-
-  CloudNote? _note;
-  late final FirebaseCloudStorage _notesService;
+class _CreateUpdateEntryState extends State<CreateUpdateEntry> {
+  CloudEntry? _entry;
+  late final FirebaseCloudStorage _entriesService;
 
   late final TextEditingController _titleController;
   late final TextEditingController _textController;
@@ -37,8 +34,7 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
 
   @override
   void initState() {
-    // _notesService = NotesService();
-    _notesService = FirebaseCloudStorage();
+    _entriesService = FirebaseCloudStorage();
     _titleController = TextEditingController();
     _textController = TextEditingController();
     // _fieldNamesController = StreamController();
@@ -46,14 +42,14 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
   }
 
   void _titleControllerListener() async {
-    final note = _note;
-    if (note == null) {
+    final entry = _entry;
+    if (entry == null) {
       return;
     }
     final title = _titleController.text;
     final text = _textController.text;
-    await _notesService.updateNote(
-      documentId: note.documentId,
+    await _entriesService.updateEntry(
+      documentId: entry.documentId,
       title: title,
       text: text,
       formHeader: formHeader,
@@ -62,15 +58,15 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
   }
 
   void _textControllerListener() async {
-    final note = _note;
-    if (note == null) {
+    final entry = _entry;
+    if (entry == null) {
       return;
     }
     final title = _titleController.text;
     final text = _textController.text;
 
-    await _notesService.updateNote(
-      documentId: note.documentId,
+    await _entriesService.updateEntry(
+      documentId: entry.documentId,
       title: title,
       text: text,
       formHeader: formHeader,
@@ -85,26 +81,26 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
     _titleController.addListener(_titleControllerListener);
   }
 
-  Future<CloudNote> createOrGetExistingNote(BuildContext context) async {
-    final widgetNote = context.getArgument<CloudNote>();
+  Future<CloudEntry> createOrGetExistingEntry(BuildContext context) async {
+    final widgetEntry = context.getArgument<CloudEntry>();
 
-    if (widgetNote != null) {
-      _note = widgetNote;
+    if (widgetEntry != null) {
+      _entry = widgetEntry;
       createdDate = DateFormat('yyyy/MM/dd HH:mm')
-          .format(widgetNote.createdDate.toDate());
+          .format(widgetEntry.createdDate.toDate());
       if (_titleController.text.isEmpty && _textController.text.isEmpty) {
-        _titleController.text = widgetNote.title;
-        _textController.text = widgetNote.text;
+        _titleController.text = widgetEntry.title;
+        _textController.text = widgetEntry.text;
       }
-      if (widgetNote.formData.isNotEmpty) {
-        for (var header in widgetNote.formHeader) {
+      if (widgetEntry.formData.isNotEmpty) {
+        for (var header in widgetEntry.formHeader) {
           formHeaderControllers.add(TextEditingController(text: header));
           formHeader.add(header);
         }
-        for (var data in widgetNote.formData) {
+        for (var data in widgetEntry.formData) {
           List<TextEditingController> formDataControllers = [];
           Map<String, String> formDataMap = {};
-          for (var key in widgetNote.formHeader) {
+          for (var key in widgetEntry.formHeader) {
             formDataControllers.add(TextEditingController(text: data[key]));
             formDataMap[key] = data[key] ?? '';
           }
@@ -113,39 +109,86 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
         }
       }
 
-      return widgetNote;
+      return widgetEntry;
     }
 
-    final existingNote = _note;
-    if (existingNote != null) {
-      return existingNote;
+    final existingEntry = _entry;
+    if (existingEntry != null) {
+      return existingEntry;
     }
 
     final currentUser = AuthService.firebase().currentUser!;
     final userId = currentUser.id;
-    final newNote = await _notesService.createNewNote(ownerUserId: userId);
+    final newEntry = await _entriesService.createNewEntry(ownerUserId: userId);
     createdDate = DateFormat('yyyy/MM/dd HH:mm').format(DateTime.now());
-    _note = newNote;
+    _entry = newEntry;
 
-    return newNote;
+    return newEntry;
   }
 
-  void _deleteNoteIfTextIsEmpty() {
-    final note = _note;
+  void _deleteEntryIfTextIsEmpty() {
+    final entry = _entry;
     if (_textController.text.isEmpty &&
         _titleController.text.isEmpty &&
-        note != null) {
-      _notesService.deleteNote(documentId: note.documentId);
-      // _notesService.deleteNote(id: note.id);
+        entry != null) {
+      _entriesService.deleteEntry(documentId: entry.documentId);
+      // _entriesService.deleteEntry(id: entry.id);
     }
   }
 
-  void _saveNoteIfTextNotEmpty() async {
-    final note = _note;
+  void _saveEntryIfTextNotEmpty() async {
+    final entry = _entry;
     final title = _titleController.text;
     final text = _textController.text;
     formHeader = [];
     formData = [];
+    // formHeader = [
+    //   'Full Name',
+    //   'Address',
+    //   'Date Available',
+    //   'Phone',
+    //   'Email',
+    //   'NRIC',
+    //   'Desired salary'
+    // ];
+    // formData = [
+    //   {
+    //     'Full Name': 'John Doe',
+    //     'Address': '123 Main St, City, Country',
+    //     'Date Available': '2024-03-20',
+    //     'Phone': '+1234567890',
+    //     'Email': 'johndoe@example.com',
+    //     'NRIC': '123456789',
+    //     'Desired salary': '50000',
+    //   },
+    //   {
+    //     'Full Name': 'Jane Smith',
+    //     'Address': '456 Oak St, Town, Country',
+    //     'Date Available': '2024-03-21',
+    //     'Phone': '+1987654321',
+    //     'Email': 'janesmith@example.com',
+    //     'NRIC': '987654321',
+    //     'Desired salary': '60000',
+    //   },
+    //   {
+    //     'Full Name': 'Alice Johnson',
+    //     'Address': '789 Elm St, Village, Country',
+    //     'Date Available': '2024-03-22',
+    //     'Phone': '+1122334455',
+    //     'Email': 'alicejohnson@example.com',
+    //     'NRIC': '112233445',
+    //     'Desired salary': '70000',
+    //   },
+    //   {
+    //     'Full Name': 'Bob Brown',
+    //     'Address': '101 Pine St, Hamlet, Country',
+    //     'Date Available': '2024-03-23',
+    //     'Phone': '+9988776655',
+    //     'Email': 'bobbrown@example.com',
+    //     'NRIC': '998877665',
+    //     'Desired salary': '80000',
+    //   },
+    // ];
 
     if (formHeaderControllers.isNotEmpty) {
       for (int i = 0; i < formHeaderControllers.length; i++) {
@@ -161,12 +204,12 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
         formData.add(formDataMap);
       }
     }
-    if (note != null &&
+    if (entry != null &&
         (title.isNotEmpty |
             text.isNotEmpty |
             formHeaderControllers.isNotEmpty)) {
-      await _notesService.updateNote(
-        documentId: note.documentId,
+      await _entriesService.updateEntry(
+        documentId: entry.documentId,
         title: title.isNotEmpty ? title : 'Untitled',
         text: text,
         formHeader: formHeader,
@@ -175,24 +218,24 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
     }
   }
 
-  // void _saveNote(String? newText) async {
-  //   final note = _note;
+  // void _saveEntry(String? newText) async {
+  //   final entry = _entry;
   // final title = _titleController.text;
   // final text = _textController.text;
-  // if (note != null) {
-  //   await _notesService.updateNote(
-  //     documentId: note.documentId,
+  // if (entry != null) {
+  //   await _entriesService.updateEntry(
+  //     documentId: entry.documentId,
   //     title: title,
   //     text: text,
   //   );
-  //   log('note updated');
+  //   log('entry updated');
   // }
   // }
 
   @override
   void dispose() {
-    _deleteNoteIfTextIsEmpty();
-    _saveNoteIfTextNotEmpty();
+    _deleteEntryIfTextIsEmpty();
+    _saveEntryIfTextNotEmpty();
     _titleController.dispose();
     _textController.dispose();
     // _fieldNamesController.close();
@@ -222,7 +265,7 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
     } else {
       _textController.text += '\n\nScanned Text: $scannedText';
     }
-    // _saveNote(null);
+    // _saveEntry(null);
   }
 
   String extractFieldValue(List fieldName, String text, int i) {
@@ -269,7 +312,7 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
                 TextButton(
                   onPressed: () {
                     setState(() {
-                      _saveNoteIfTextNotEmpty();
+                      _saveEntryIfTextNotEmpty();
                     });
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -295,12 +338,12 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
               if (value == 'share') {
                 final title = _titleController.text;
                 final text = _textController.text;
-                if (_note == null ||
+                if (_entry == null ||
                     (text.isEmpty && title.isEmpty) ||
                     (text.isEmpty && formData.isEmpty)) {
-                  await showCannotShareEmptyNoteDialog(context);
+                  await showCannotShareEmptyEntryDialog(context);
                 } else {
-                  _saveNoteIfTextNotEmpty();
+                  _saveEntryIfTextNotEmpty();
                   formData.isNotEmpty
                       ? showShareDialog(context, title, text, formData)
                       : Share.share('Title: ' + title + '\n' + text);
@@ -308,11 +351,13 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
               } else if (value == 'delete') {
                 bool shoulddelete = await showDeleteConfirmationDialog(context);
                 if (shoulddelete) {
-                  final note = _note;
-                  await _notesService.deleteNote(documentId: note!.documentId);
+                  final entry = _entry;
+                  await _entriesService.deleteEntry(
+                      documentId: entry!.documentId);
                   await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const NotesPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const EntriesPage()),
                   );
                 }
               }
@@ -343,7 +388,7 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
         ],
       ),
       body: FutureBuilder(
-        future: createOrGetExistingNote(context),
+        future: createOrGetExistingEntry(context),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
@@ -381,17 +426,18 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
                               ),
                               border: InputBorder.none,
                             ),
-                            // onChanged: _saveNote,
+                            // onChanged: _saveEntry,
                           ),
                           TextField(
                             controller: _textController,
                             keyboardType: TextInputType.multiline,
                             maxLines: null,
-                            decoration: const InputDecoration(
-                              hintText: 'Body',
+                            decoration: InputDecoration(
+                              hintText:
+                                  formHeaderControllers.isEmpty ? 'Body' : null,
                               border: InputBorder.none,
                             ),
-                            // onChanged: _saveNote,
+                            // onChanged: _saveEntry,
                           ),
 
                           // StreamBuilder(
@@ -427,10 +473,13 @@ class _CreateUpdateNoteState extends State<CreateUpdateNote> {
                                       child: Column(
                                         children: [
                                           DataTable(
-                                            border: const TableBorder(
+                                            border: TableBorder(
                                               verticalInside: BorderSide(
                                                 width: 1,
                                                 style: BorderStyle.solid,
+                                                color: lightTheme
+                                                    ? Colors.black
+                                                    : Colors.white,
                                               ),
                                             ),
                                             columns: <DataColumn>[

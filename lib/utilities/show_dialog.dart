@@ -29,7 +29,7 @@ Future<bool> showDeleteConfirmationDialog(BuildContext context) {
   return showGenericDialog<bool>(
     context: context,
     title: 'Confirm Delete',
-    content: 'Are you sure you want to delete this note?',
+    content: 'Are you sure you want to delete this entry?',
     optionsBuilder: () => {'Cancel': false, 'Delete': true},
   ).then(
     (value) => value ?? false,
@@ -47,11 +47,11 @@ Future<bool> showSignOutConfirmationDialog(BuildContext context) {
   );
 }
 
-Future<void> showCannotShareEmptyNoteDialog(BuildContext context) {
+Future<void> showCannotShareEmptyEntryDialog(BuildContext context) {
   return showGenericDialog<bool>(
     context: context,
-    title: 'Cannot Share Empty Note',
-    content: 'Please add content to your note before sharing.',
+    title: 'Cannot Share an Empty Entry',
+    content: 'Please add some content to your entry before sharing.',
     optionsBuilder: () => {
       'OK': null,
     },
