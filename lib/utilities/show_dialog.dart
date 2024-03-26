@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings
+
 import 'package:formcapture/imports.dart';
 
 Future<bool> showAlertDialog(BuildContext context, String message) {
@@ -91,21 +93,16 @@ Future<void> showShareDialog(BuildContext context, String title, String text,
           return AlertDialog(
             title: const Text('Share'),
             content: SingleChildScrollView(
-              child: Container(
+              child: SizedBox(
                 width: double.infinity,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                           onPressed: () {
-                            Share.share('Title: ' +
-                                title +
-                                '\n' +
-                                text +
-                                '\nForm Data: \n' +
-                                formData.toString());
+                            Share.share('Title: ' + title +'\n' + text + '\nForm Data: \n' + formData.toString());
                             Navigator.of(context).pop();
                           },
                           child: const Text('Share as text')),
@@ -119,12 +116,11 @@ Future<void> showShareDialog(BuildContext context, String title, String text,
                           },
                           child: const Text('Share as pdf')),
                     ),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                           onPressed: () {
                             shareToExcel(title, text, formData);
-                            // shareListToExcel(title, text, formData); //!!!!!!!!!!!!!
                             Navigator.of(context).pop();
                           },
                           child: const Text('Share as .xlsx')),

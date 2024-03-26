@@ -2,16 +2,16 @@
 // import 'package:formcapture/imports.dart';
 
 // pages
-export 'package:formcapture/pages/create_update_entry_page.dart';
-export 'package:formcapture/pages/entries_page.dart';
-export 'package:formcapture/pages/login_page.dart';
-export 'package:formcapture/pages/signup_page.dart';
+export 'package:formcapture/screens/create_update_entry_screen.dart';
+export 'package:formcapture/screens/entries_preview_screen.dart';
+export 'package:formcapture/screens/login_screen.dart';
+export 'package:formcapture/screens/signup_screen.dart';
 export 'package:formcapture/utilities/scan_image.dart';
 export 'package:formcapture/utilities/image_cropper.dart';
 export 'package:formcapture/utilities/image_picker.dart';
-export 'package:formcapture/pages/input_form.dart';
-export 'package:formcapture/pages/verify_email_page.dart';
-export 'package:formcapture/pages/reset_password_page.dart';
+export 'package:formcapture/screens/input_form_screen.dart';
+export 'package:formcapture/screens/verify_email_screen.dart';
+export 'package:formcapture/screens/reset_password_screen.dart';
 export 'package:formcapture/loading/loading_screen_controller.dart';
 export 'package:formcapture/loading/loading_screen.dart';
 

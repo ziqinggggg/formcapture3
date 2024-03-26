@@ -10,8 +10,6 @@ Future<String> pickImage(context, {ImageSource? source}) async {
 
     if (image != null) {
       path = image.path;
-    } else {
-      path = '';
     }
   } catch (e) {
     showErrorDialog(context, "Failed to select an image. Please try again.");

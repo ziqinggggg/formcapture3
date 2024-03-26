@@ -4,12 +4,14 @@ import 'package:formcapture/imports.dart';
 class FirebaseCloudStorage {
   final entries = FirebaseFirestore.instance.collection('entries');
 
-  Future<void> deleteEntry({required String documentId}) async {
-    try {
-      await entries.doc(documentId).delete();
-    } catch (e) {
-      throw CouldNotDeleteEntryException();
-    }
+  Stream<Iterable<CloudEntry>> getAllEntries(
+      {required String ownerUserId, required bool sortByCreatedDate}) {
+    var sortingMethod = '';
+    sortingMethod = sortByCreatedDate ? 'created_date' : 'modified_date';
+    final allEntries = entries
+        .where(ownerUserIdFieldName, isEqualTo: ownerUserId).orderBy(sortingMethod, descending: true).snapshots()
+        .map((event) => event.docs.map((doc) => CloudEntry.fromSnapshot(doc)));
+    return allEntries;
   }
 
   Future<void> updateEntry({
@@ -27,27 +29,12 @@ class FirebaseCloudStorage {
         formDataFieldName: formData,
         formHeaderFieldName: formHeader
       });
-    } catch (e) {
-      throw CouldNotUpdateEntryException();
-    }
+    } catch (e) {throw CouldNotUpdateEntryException();}
   }
 
-  Stream<Iterable<CloudEntry>> allEntries(
-      {required String ownerUserId, required bool sortByCreatedDate}) {
-    var sortingMethod = '';
-    if (sortByCreatedDate) {
-      sortingMethod = 'created_date';
-    } else {
-      sortingMethod = 'modified_date';
-    }
-
-    final allEntries = entries
-        .where(ownerUserIdFieldName, isEqualTo: ownerUserId)
-        .orderBy(sortingMethod, descending: true)
-        .snapshots()
-        .map((event) => event.docs.map((doc) => CloudEntry.fromSnapshot(doc)));
-
-    return allEntries;
+  Future<void> deleteEntry({required String documentId}) async {
+    try {await entries.doc(documentId).delete();
+    } catch (e) {throw CouldNotDeleteEntryException();}
   }
 
   Future<Iterable<CloudEntry>> getEntries({required String ownerUserId}) async {

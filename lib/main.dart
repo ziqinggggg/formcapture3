@@ -35,7 +35,7 @@ Future<void> main() async {
         darkTheme: darkTheme,
         home: BlocProvider<AuthBloc>(
           create: (context) => AuthBloc(FirebaseAuthProvider()),
-          child: HomePage(),
+          child: HomeScreen(),
         ),
         routes: {
           '/createentry/': (context) => const CreateUpdateEntry(),
@@ -45,8 +45,8 @@ Future<void> main() async {
   );
 }
 
-class HomePage extends StatelessWidget {
-  HomePage({super.key});
+class HomeScreen extends StatelessWidget {
+  HomeScreen({super.key});
   @override
   Widget build(BuildContext context) {
     context.read<AuthBloc>().add(const AuthEventInitialize());
@@ -63,15 +63,15 @@ class HomePage extends StatelessWidget {
       },
       builder: (context, state) {
         if (state is AuthStateLoggedIn) {
-          return const EntriesPage();
+          return const EntriesScreen();
         } else if (state is AuthStateNeedsVerification) {
-          return const VerifyEmailPage();
+          return const VerifyEmailScreen();
         } else if (state is AuthStateSignedOut) {
-          return const LogInPage();
+          return const LogInScreen();
         } else if (state is AuthStateForgotPassword) {
-          return const ResetPasswordPage();
+          return const ResetPassworScreen();
         } else if (state is AuthStateSigningUp) {
-          return const SignUpPage();
+          return const SignUpScreen();
         } else {
           // if (state.isLoading) {
           //   LoadingScreen().show(

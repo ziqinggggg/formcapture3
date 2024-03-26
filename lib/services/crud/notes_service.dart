@@ -1,22 +1,17 @@
 // // entries_service.dart
 
-// import 'dart:async';
 // import 'package:intl/intl.dart';
-
-// import 'package:flutter/foundation.dart';
-// import 'package:formcapture/filter.dart';
+// import 'package:formcapture/utilities/filter.dart';
 // import 'package:formcapture/services/crud/crud_exceptions.dart';
+// import 'package:formcapture/imports.dart';
 // import 'package:sqflite/sqflite.dart';
 // import 'package:path_provider/path_provider.dart';
 // import 'package:path/path.dart' show join;
 
 // class EntriesService {
 //   Database? _db;
-
 //   List<DatabaseEntry> _entries = [];
-
 //   DatabaseUser? _user;
-
 //   static final EntriesService _shared = EntriesService._sharedInstance();
 //   EntriesService._sharedInstance() {
 //     _entriesStreamController = StreamController<List<DatabaseEntry>>.broadcast(
@@ -26,7 +21,6 @@
 //     );
 //   }
 //   factory EntriesService() => _shared;
-
 //   late final StreamController<List<DatabaseEntry>> _entriesStreamController;
 
 // // filter stream of list of things based on current user

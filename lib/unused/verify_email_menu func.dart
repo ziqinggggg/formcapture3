@@ -100,7 +100,7 @@
 //                         //         Navigator.push(
 //                         //           context,
 //                         //           MaterialPageRoute(
-//                         //             builder: (context) => const LogInPage(),
+//                         //             builder: (context) => const LogInScreen(),
 //                         //           ),
 //                         //         );
 //                         //       },
